@@ -2,6 +2,7 @@ import { User } from '@auth/core/types';
 import type { NextAuthConfig } from 'next-auth';
 import DiscordProvider from 'next-auth/providers/discord';
 import { Session } from 'next-auth/types';
+
 declare module 'next-auth' {
   interface Session {
     user: {
