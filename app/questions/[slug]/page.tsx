@@ -183,7 +183,7 @@ const Page = () => {
 							<DropdownMenuTrigger>
 								<MoreHorizontal
 									size={35}
-									className='active:outline-none  rounded-full border p-1.5 '
+									className='active:outline-none hover:outline-none rounded-full border p-1.5 '
 								/>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent className='rounded-xl backdrop-blur bg-gray-200/30  dark:bg-gray-700/30 px-2 cursor-pointer py-2'>
