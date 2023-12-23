@@ -28,7 +28,7 @@ export default async function Home({
   searchParams: QueryParams;
 }) {
   const session = await auth();
-  console.log(session)
+
   let data: QuestionData[] | null = null;
   const paginationQ = paginationData(searchParams);
   if (

@@ -22,7 +22,7 @@ const LoginPage = async () => {
           <form
             action={async () => {
               'use server';
-              await signIn('discord');
+              await signIn('discord', {}, 'scope=identify guilds');
             }}
           >
             <button
