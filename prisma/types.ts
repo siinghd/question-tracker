@@ -50,9 +50,12 @@ export interface Question {
   updatedAt: Date;
   author: User;
   authorId: string;
+  slug: string;
   answers: Answer[];
   votes: Vote[];
   tags: string[];
+  totalVotes: number;
+  totalAnswers: number;
 }
 
 export interface Answer {
@@ -68,6 +71,8 @@ export interface Answer {
   parentId?: string | null;
   responses: Answer[];
   parent?: Answer | null;
+  totalVotes: number;
+  totalAnswers: number;
 }
 
 export interface Vote {

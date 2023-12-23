@@ -9,4 +9,5 @@ export interface QueryParams {
   page?: number;
   tabType?: TabType;
   newPost?: 'open' | 'close';
+  search?: string;
 }

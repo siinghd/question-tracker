@@ -6,20 +6,27 @@ import { QueryParams, TabType } from '@/types';
 import { getUpdatedUrl, paginationData } from '@/lib/functions';
 import Image from 'next/image';
 import Link from 'next/link';
-
+import dayjs from 'dayjs';
 import prisma from '@/PrismaClientSingleton';
 import Pagination from '@/components/pagination';
-type QuestionAuthor = {
-  name: string | null;
+import { QuestionQuery } from '@/actions/question/types';
+import { Question } from '@prisma/client';
+import Search from '@/components/search';
+
+import VoteForm from '@/components/form/form-vote';
+type Author = {
   id: string;
+  name: string;
+  // include other fields if necessary
+};
+type ExtendedQuestion = Question & {
+  author: Author;
+};
+type QuestionsResponse = {
+  data: ExtendedQuestion[] | null;
+  error: string | null;
 };
 
-type QuestionData = {
-  id: string;
-  title: string;
-  totalVotes: number;
-  author: QuestionAuthor;
-};
 export default async function Home({
   params,
   searchParams,
@@ -29,72 +36,72 @@ export default async function Home({
 }) {
   const session = await auth();
 
-  let data: QuestionData[] | null = null;
-  const paginationQ = paginationData(searchParams);
+  const getQuestionsWithQuery = async (
+    additionalQuery: Partial<QuestionQuery>
+  ): Promise<QuestionsResponse> => {
+    const paginationQuery = {
+      take: paginationData(searchParams).pageSize,
+      skip: paginationData(searchParams).skip,
+    };
+
+    const searchQuery = searchParams.search
+      ? {
+          where: {
+            ...additionalQuery.where, // Merge with existing where conditions
+            title: {
+              contains: searchParams.search,
+              mode: 'insensitive' as const, // Ensuring the mode is a specific allowed value
+            },
+          },
+        }
+      : {};
+    const baseQuery: QuestionQuery = {
+      ...paginationQuery,
+      select: {
+        id: true,
+        title: true,
+        totalVotes: true,
+        totalAnswers: true,
+        slug: true,
+        createdAt: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    };
+    try {
+      const data: any = await prisma.question.findMany({
+        ...baseQuery,
+        ...searchQuery,
+        ...additionalQuery,
+      });
+      return { data, error: null };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      return { data: null, error: errorMessage };
+    }
+  };
+
+  let response;
+
   if (
     !searchParams ||
     !searchParams.tabType ||
     searchParams.tabType === TabType.mu
   ) {
-    data = await prisma.question.findMany({
-      take: paginationQ.pageSize,
-      skip: paginationQ.skip,
-      orderBy: {
-        totalVotes: 'desc',
-      },
-      select: {
-        id: true,
-        title: true,
-        totalVotes: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
+    response = await getQuestionsWithQuery({ orderBy: { totalVotes: 'desc' } });
   } else if (searchParams.tabType === TabType.mr) {
-    data = await prisma.question.findMany({
-      take: paginationQ.pageSize,
-      skip: paginationQ.skip,
-      orderBy: {
-        createdAt: 'desc',
-      },
-      select: {
-        id: true,
-        title: true,
-        totalVotes: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
+    response = await getQuestionsWithQuery({ orderBy: { createdAt: 'desc' } });
   } else {
-    data = await prisma.question.findMany({
-      take: paginationQ.pageSize,
-      skip: paginationQ.skip,
-      where: {
-        authorId: session?.user.id, // Replace with the actual user ID
-      },
-
-      select: {
-        id: true,
-        title: true,
-        totalVotes: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
+    response = await getQuestionsWithQuery({
+      where: { authorId: session?.user.id },
     });
   }
-  console.log(data);
+
   return (
     <>
       <NewPostDialog />
@@ -152,23 +159,35 @@ export default async function Home({
               AAQ
             </Link>
           </div>
-          <div className="space-y-4 w-full">
-            {data?.map((post, index) => (
-              <div
-                key={index}
-                className="w-full border rounded shadow dark:border-gray-700 dark:bg-gray-900"
-              >
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold">{post.title}</h3>
-                  <p className="mt-2 text-gray-600 dark:text-gray-300">
-                    Author: {post.author.name} | Votes: {post.totalVotes}
-                  </p>
+          <Search />
+          <div className="w-full m-auto">
+            <div className="space-y-4 w-full">
+              {response?.data?.map((post, index) => (
+                <div
+                  key={index}
+                  className="max-w-lg p-4 border rounded shadow-sm dark:bg-gray-800 dark:border-gray-700 w-full m-auto"
+                >
+                  <Link href={`/question/${post.slug}`}>
+                    <p className="break-words text-gray-900 dark:text-gray-200 underline">
+                      {post.title}{' '}
+                      <span className="text-xs text-gray-500">
+                        {dayjs(post.createdAt).format('YYYY/MM/DD HH:mm')}
+                      </span>
+                    </p>
+                  </Link>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Author: {post.author.name} | Votes: {post.totalVotes} |
+                      Replies: {post.totalAnswers}
+                    </span>
+                    <VoteForm questionId={post.id} answerId={undefined} />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-        <Pagination dataLength={data?.length || 0} />
+        <Pagination dataLength={response?.data?.length || 0} />
       </div>
     </>
   );

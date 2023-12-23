@@ -58,22 +58,24 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
-
 model Question {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  title     String
-  content   String
-  createdAt DateTime  @default(now())
-  author    User      @relation(fields: [authorId], references: [id])
-  authorId  String @db.ObjectId
-  totalVotes  Int  @default(0)
-  answers   Answer[]
-  votes     Vote[]
-  tags      String[]
-  updatedAt DateTime  @updatedAt
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  content     String
+  slug String @unique
+  createdAt   DateTime  @default(now())
+  author      User      @relation(fields: [authorId], references: [id])
+  authorId    String    @db.ObjectId
+  totalVotes  Int       @default(0)
+  totalAnswers Int      @default(0)
+  answers     Answer[]
+  votes       Vote[]
+  tags        String[]
+  updatedAt   DateTime  @updatedAt
 
   @@index([authorId,tags])
 }
+
 
 model Answer {
   id         String    @id @default(auto()) @map("_id") @db.ObjectId
@@ -85,6 +87,7 @@ model Answer {
   authorId   String @db.ObjectId
   votes      Vote[]
   totalVotes  Int  @default(0)
+  totalAnswers Int      @default(0) 
   updatedAt  DateTime @updatedAt
   parentId   String? @db.ObjectId
   responses  Answer[] @relation("AnswerToAnswer")

@@ -11,3 +11,4 @@ export const QuestionUpdateSchema = z.object({
   content: z.string().min(20, 'Question content too short'),
   tags: z.array(z.string()).optional(),
 });
+

@@ -48,19 +48,27 @@ export const NewPostDialog = () => {
     }
   }, [onClose, onOpen, paramsObject.newPost]);
 
-  const handleOnCloseClick = () => {
-    router.push(getUpdatedUrl(path + '/', paramsObject, { newPost: 'close' }));
-  };
-  const { execute, fieldErrors } = useAction(createQuestion, {
+  const { execute, fieldErrors, setFieldErrors } = useAction(createQuestion, {
     onSuccess: (data) => {
       toast.success(`Question "${data.title}" created`);
       formRef?.current?.reset();
+      if (!fieldErrors?.content && !fieldErrors?.title && !fieldErrors?.tags) {
+        setValue('');
+        router.push(
+          getUpdatedUrl(path + '/', paramsObject, { newPost: 'close' })
+        );
+      }
     },
     onError: (error) => {
       toast.error(error);
     },
   });
-
+  const handleOnCloseClick = () => {
+    router.push(getUpdatedUrl(path + '/', paramsObject, { newPost: 'close' }));
+    if (fieldErrors?.content || fieldErrors?.title || fieldErrors?.tags) {
+      setFieldErrors({});
+    }
+  };
   const onSubmit = (formData: FormData) => {
     const title = formData.get('title');
 
@@ -71,13 +79,8 @@ export const NewPostDialog = () => {
       content: value,
       tags: (tags?.toString() || '').split(','),
     });
-    if (!fieldErrors?.content && !fieldErrors?.title && !fieldErrors?.tags) {
-      setValue('');
-      router.push(
-        getUpdatedUrl(path + '/', paramsObject, { newPost: 'close' })
-      );
-    }
   };
+
   return (
     <Modal ref={ref} onClose={handleOnCloseClick}>
       <form ref={formRef} action={onSubmit}>
