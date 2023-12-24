@@ -186,38 +186,45 @@ export default async function Home({
                       answerId={undefined}
                       key={post.id}
                     />
-                    <div className="flex flex-1 flex-row items-start justify-between">
-                      <div>
-                        <div className="flex items-center justify-start gap-3 my-2">
-                          <Avatar className="cursor-pointer">
-                            <AvatarImage
-                              className="h-10 w-10 rounded-full"
-                              src={post.author.image}
-                            />
-                            <AvatarFallback>CN</AvatarFallback>
-                          </Avatar>
-                          <TextSnippet className="font-medium">
-                            {post.author.name}
-                          </TextSnippet>
-                          <TextSnippet className="text-sm text-gray-500">
-                            {dayjs(post.createdAt).format('MMM YYYY/DD HH:mm')}
-                          </TextSnippet>
-                          <TextSnippet className="w-[10px] h-[10px] bg-blue-500 rounded-full"></TextSnippet>
-                          <TextSnippet className="text-sm text-gray-500 -ml-2">
-                            Edited on
-                            {dayjs(post.updatedAt).format('MMM YYYY/DD HH:mm')}
-                          </TextSnippet>
-                        </div>
-                        {post.tags
-                          .filter((v) => v !== '')
-                          .map((v, index) => (
-                            <Tag name={v} key={index + v} />
-                          ))}
 
-                        <TextSnippet className="text-lg  py-2">
-                          {post.title}
-                        </TextSnippet>
-                      </div>
+                    <div className="flex flex-1 flex-row items-start justify-between">
+                      <Link href={`/questions/${post.id}`}>
+                        <div>
+                          <div className="flex items-center justify-start gap-3 my-2">
+                            <Avatar className="cursor-pointer">
+                              <AvatarImage
+                                className="h-10 w-10 rounded-full"
+                                src={post.author.image}
+                              />
+                              <AvatarFallback>CN</AvatarFallback>
+                            </Avatar>
+                            <TextSnippet className="font-medium">
+                              {post.author.name}
+                            </TextSnippet>
+                            <TextSnippet className="text-sm text-gray-500">
+                              {dayjs(post.createdAt).format(
+                                'MMM YYYY/DD HH:mm'
+                              )}
+                            </TextSnippet>
+                            <TextSnippet className="w-[10px] h-[10px] bg-blue-500 rounded-full"></TextSnippet>
+                            <TextSnippet className="text-sm text-gray-500 -ml-2">
+                              Edited on
+                              {dayjs(post.updatedAt).format(
+                                'MMM YYYY/DD HH:mm'
+                              )}
+                            </TextSnippet>
+                          </div>
+                          {post.tags
+                            .filter((v) => v !== '')
+                            .map((v, index) => (
+                              <Tag name={v} key={index + v} />
+                            ))}
+
+                          <TextSnippet className="text-lg  py-2">
+                            {post.title}
+                          </TextSnippet>
+                        </div>{' '}
+                      </Link>
                       <DropdownMenu>
                         <DropdownMenuTrigger>
                           <MoreHorizontal
