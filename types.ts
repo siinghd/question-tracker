@@ -1,7 +1,7 @@
 export enum TabType {
-  mu = 'Most upvotes',
-  mr = 'Most Recent',
-  mq = 'My question',
+	mu = "Most upvotes",
+	mr = "Most Recent",
+	mq = "My question",
 }
 
 export interface QueryParams {
