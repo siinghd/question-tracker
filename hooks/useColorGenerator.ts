@@ -1,3 +1,4 @@
+'use client'
 import { useCallback, useEffect, useState } from "react";
 
 const useColorGenerator = (name: string = "M1000"): [string, string] => {

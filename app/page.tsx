@@ -1,7 +1,5 @@
 import { auth } from '@/auth';
-import Modal from '@/components/Modal';
 import { NewPostDialog } from '@/components/NewPostDialog';
-import useModal from '@/hooks/useModal';
 import { QueryParams, TabType } from '@/types';
 import { getUpdatedUrl, paginationData } from '@/lib/functions';
 import Image from 'next/image';
@@ -14,9 +12,23 @@ import { Question } from '@prisma/client';
 import Search from '@/components/search';
 
 import VoteForm from '@/components/form/form-vote';
+import { Card, CardBody } from '@/components/card';
+import { VoteBlock, VoteScore } from '@/components/voteScore';
+import { Minus, MoreHorizontal, Plus } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import TextSnippet from '@/components/textSnippet';
+import Tag from '@/components/tag';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import DeleteForm from '@/components/form/form-delete';
 type Author = {
   id: string;
   name: string;
+  image: string;
   // include other fields if necessary
 };
 type ExtendedQuestion = Question & {
@@ -62,12 +74,15 @@ export default async function Home({
         title: true,
         totalVotes: true,
         totalAnswers: true,
+        tags: true,
         slug: true,
         createdAt: true,
+        updatedAt: true,
         author: {
           select: {
             id: true,
             name: true,
+            image: true,
           },
         },
       },
@@ -108,7 +123,7 @@ export default async function Home({
       <div className="container mx-auto md:p-10 ">
         <div className="flex flex-col items-center p-4 dark:text-white">
           <p>Coming soon: Reply to answers, Live session with questions</p>
-          <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
+          {/* <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
             <Image
               alt="User profile"
               className="w-24 h-24 rounded-full"
@@ -120,7 +135,7 @@ export default async function Home({
               }}
               width="96"
             />
-          </div>
+          </div> */}
           <div className="w-full my-4 border-b dark:border-gray-600 flex justify-center space-x-4">
             <Link
               className="py-2"
@@ -163,26 +178,70 @@ export default async function Home({
           <div className="w-full m-auto">
             <div className="space-y-4 w-full">
               {response?.data?.map((post, index) => (
-                <div
-                  key={index}
-                  className="max-w-lg p-4 border rounded shadow-sm dark:bg-gray-800 dark:border-gray-700 w-full m-auto"
-                >
-                  <Link href={`/question/${post.slug}`}>
-                    <p className="break-words text-gray-900 dark:text-gray-200 underline">
-                      {post.title}{' '}
-                      <span className="text-xs text-gray-500">
-                        {dayjs(post.createdAt).format('YYYY/MM/DD HH:mm')}
-                      </span>
-                    </p>
-                  </Link>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      Author: {post.author.name} | Votes: {post.totalVotes} |
-                      Replies: {post.totalAnswers}
-                    </span>
-                    <VoteForm questionId={post.id} answerId={undefined} />
-                  </div>
-                </div>
+                <Card className="md:w-[70%] bg-background mx-auto" key={index}>
+                  <CardBody className="flex gap-5 items-start justify-between">
+                    <VoteForm
+                      votes={post.totalVotes}
+                      questionId={post.id}
+                      answerId={undefined}
+                      key={post.id}
+                    />
+                    <div className="flex flex-1 flex-row items-start justify-between">
+                      <div>
+                        <div className="flex items-center justify-start gap-3 my-2">
+                          <Avatar className="cursor-pointer">
+                            <AvatarImage
+                              className="h-10 w-10 rounded-full"
+                              src={post.author.image}
+                            />
+                            <AvatarFallback>CN</AvatarFallback>
+                          </Avatar>
+                          <TextSnippet className="font-medium">
+                            {post.author.name}
+                          </TextSnippet>
+                          <TextSnippet className="text-sm text-gray-500">
+                            {dayjs(post.createdAt).format('MMM YYYY/DD HH:mm')}
+                          </TextSnippet>
+                          <TextSnippet className="w-[10px] h-[10px] bg-blue-500 rounded-full"></TextSnippet>
+                          <TextSnippet className="text-sm text-gray-500 -ml-2">
+                            Edited on
+                            {dayjs(post.updatedAt).format('MMM YYYY/DD HH:mm')}
+                          </TextSnippet>
+                        </div>
+                        {post.tags
+                          .filter((v) => v !== '')
+                          .map((v, index) => (
+                            <Tag name={v} key={index + v} />
+                          ))}
+
+                        <TextSnippet className="text-lg  py-2">
+                          {post.title}
+                        </TextSnippet>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <MoreHorizontal
+                            size={35}
+                            className="active:outline-none hover:outline-none rounded-full border p-1.5 "
+                          />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="rounded-xl backdrop-blur bg-gray-200/30  dark:bg-gray-700/30 px-2 cursor-pointer py-2">
+                          {post.author.id === session?.user.id && (
+                            <DeleteForm
+                              key={post.id}
+                              questionId={post.id}
+                              answerId={undefined}
+                            />
+                          )}
+                          <hr />
+                          {/* <DropdownMenuItem className="text-sm px-1 py-2 hover:border-none hover:outline-none">
+                            Report spam
+                          </DropdownMenuItem> */}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </CardBody>
+                </Card>
               ))}
             </div>
           </div>

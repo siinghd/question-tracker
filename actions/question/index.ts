@@ -1,10 +1,21 @@
 'use server';
 
 import { auth } from '@/auth';
-import { InputTypeCreate, ReturnTypeCreate } from './types';
+import {
+  DeleteTypeQuestion,
+  InputTypeCreate,
+  InputTypeUpadate,
+  ReturnTypeCreate,
+  ReturnTypeDelete,
+  ReturnTypeUpdate,
+} from './types';
 import { revalidatePath } from 'next/cache';
 import prisma from '@/PrismaClientSingleton';
-import { QuestionInsertSchema } from './schema';
+import {
+  QuestionDeleteSchema,
+  QuestionInsertSchema,
+  QuestionUpdateSchema,
+} from './schema';
 import { createSafeAction } from '@/lib/create-safe-action';
 import { generateHandle } from '@/lib/functions';
 
@@ -45,8 +56,9 @@ const createQuestionHandler = async (
         slug, // Include the slug
       },
     });
-
+    revalidatePath(`/questions/${question.id}`);
     revalidatePath(`/`);
+
     return { data: question };
   } catch (error) {
     console.error(error);
@@ -56,7 +68,127 @@ const createQuestionHandler = async (
   }
 };
 
+const updateQuestionHandler = async (
+  data: InputTypeUpadate
+): Promise<ReturnTypeUpdate> => {
+  const session = await auth();
+
+  if (!session || !session.user.id) {
+    return {
+      error: 'Unauthorized',
+    };
+  }
+
+  const { title, content, tags, questionId } = data;
+
+  // Check if the user is the author of the question
+  const existingQuestion = await prisma.question.findUnique({
+    where: { id: questionId },
+  });
+
+  if (!existingQuestion || existingQuestion.authorId !== session.user.id) {
+    return {
+      error: 'Unauthorized: You can only update questions you have authored',
+    };
+  }
+
+  // Create initial slug
+  let slug = generateHandle(title);
+
+  try {
+    // Check if slug already exists for another question
+    const anotherExistingQuestion = await prisma.question.findFirst({
+      where: {
+        slug,
+        AND: {
+          id: {
+            not: questionId, // Exclude the current question from the check
+          },
+        },
+      },
+    });
+
+    if (anotherExistingQuestion) {
+      // Modify the slug if it already exists (e.g., append a random string or number)
+      slug += '-' + Math.random().toString(36).substring(2, 5);
+    }
+
+    // Update question with the new slug
+    const updatedQuestion = await prisma.question.update({
+      where: { id: questionId },
+      data: {
+        title,
+        content,
+        tags,
+        slug, // Include the new slug
+      },
+    });
+    revalidatePath(`/questions/${questionId}`);
+    revalidatePath(`/`);
+
+    return { data: updatedQuestion };
+  } catch (error) {
+    console.error(error);
+    return {
+      error: 'Failed to update question.',
+    };
+  }
+};
+const deleteQuestionHandler = async (
+  data: DeleteTypeQuestion
+): Promise<ReturnTypeDelete> => {
+  const session = await auth();
+
+  if (!session || !session.user.id) {
+    return { error: 'Unauthorized' };
+  }
+
+  const { questionId } = data;
+
+  // Check if the user is the author of the question
+  const question = await prisma.question.findUnique({
+    where: { id: questionId },
+  });
+
+  if (!question || question.authorId !== session.user.id) {
+    return {
+      error: 'Unauthorized: You can only delete questions you have authored',
+    };
+  }
+
+  try {
+    // Start a transaction to delete answers and the question
+    await prisma.$transaction(async (prisma) => {
+      // Delete all answers associated with the question
+      await prisma.answer.deleteMany({
+        where: { questionId: questionId },
+      });
+
+      // Now delete the question
+      await prisma.question.delete({
+        where: { id: questionId },
+      });
+    });
+    revalidatePath(`/questions/${questionId}`);
+    revalidatePath(`/`);
+    return {
+      data: { message: 'Question and associated answers deleted successfully' },
+    };
+  } catch (error) {
+    console.error(error);
+    return { error: 'Failed to delete question and answers.' };
+  }
+};
+
 export const createQuestion = createSafeAction(
   QuestionInsertSchema,
   createQuestionHandler
+);
+export const updateQuestion = createSafeAction(
+  QuestionUpdateSchema,
+  updateQuestionHandler
+);
+export const deleteQuestion = createSafeAction(
+  QuestionDeleteSchema,
+  deleteQuestionHandler
 );
