@@ -118,7 +118,7 @@ export const NewPostDialog = () => {
               placeholder="Enter tags seperated by comma : hello,world"
               errors={fieldErrors}
             />
-            <Button type="submit">Hello world</Button>
+            <Button type="submit">Post-it</Button>
           </div>
         </div>
       </form>
