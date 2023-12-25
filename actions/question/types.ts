@@ -9,7 +9,6 @@ import {
 import { Question } from '@prisma/client';
 import { Delete } from '@/types';
 
-
 export type InputTypeCreate = z.infer<typeof QuestionInsertSchema>;
 export type ReturnTypeCreate = ActionState<InputTypeCreate, Question>;
 
@@ -55,4 +54,24 @@ export interface QuestionQuery {
     // Or a more generic search field
     search?: string;
   };
+}
+
+export interface Author {
+  id: string;
+  name: string | null; // Allow null
+  image: string | null; // Allow null
+}
+
+export interface ExtendedQuestion {
+  id: string;
+  title: string;
+  content: string;
+  slug: string;
+  createdAt: Date;
+  authorId: string;
+  totalVotes: number;
+  totalAnswers: number;
+  tags: string[];
+  updatedAt: Date;
+  author: Author;
 }

@@ -70,6 +70,7 @@ export const NewPostDialog = () => {
     }
   };
   const onSubmit = (formData: FormData) => {
+
     const title = formData.get('title');
 
     const tags = formData.get('tags');

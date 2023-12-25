@@ -28,11 +28,11 @@ export interface User {
 	email?: string | null;
 	emailVerified?: Date | null;
 	image?: string | null;
-	accounts: Account[];
-	sessions: Session[];
-	questions: Question[];
-	answers: Answer[];
-	votes: Vote[];
+	accounts?: Account[];
+	sessions?: Session[];
+	questions?: Question[];
+	answers?: Answer[];
+	votes?: Vote[];
 }
 
 export interface VerificationToken {
@@ -51,9 +51,9 @@ export interface Question {
   author: User;
   authorId: string;
   slug: string;
-  answers: Answer[];
-  votes: Vote[];
-  tags: string[];
+  answers?: Answer[];
+  votes?: Vote[];
+  tags?: string[];
   totalVotes: number;
   totalAnswers: number;
 }
@@ -63,13 +63,13 @@ export interface Answer {
   content: string;
   createdAt: Date;
   updatedAt: Date;
-  question: Question;
+  question?: Question;
   questionId: string;
-  author: User;
+  author?: User;
   authorId: string;
-  votes: Vote[];
+  votes?: Vote[];
   parentId?: string | null;
-  responses: Answer[];
+  responses?: Answer[];
   parent?: Answer | null;
   totalVotes: number;
   totalAnswers: number;
@@ -78,7 +78,7 @@ export interface Answer {
 export interface Vote {
 	id: string;
 	value: number;
-	user: User;
+	user?: User;
 	userId: string;
 	question?: Question | null;
 	questionId?: string | null;

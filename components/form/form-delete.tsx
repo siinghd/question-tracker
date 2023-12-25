@@ -42,7 +42,7 @@ const DeleteForm: React.FC<IVoteFormProps> = ({ questionId, answerId }) => {
   const hanleDeleteFunction = () => {
     execute(questionId ? { questionId } : { answerId });
   };
-  console.log(fieldErrors);
+
   return (
     <form
       id={`delete-${idForm}`}
