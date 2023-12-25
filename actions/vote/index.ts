@@ -1,16 +1,11 @@
 'use server';
 
 import { auth } from '@/auth';
-import {
-  ReturnTypeVoteUpdate,
-  VoteUpdateType,
-} from './types';
+import { ReturnTypeVoteUpdate, VoteUpdateType } from './types';
 import { revalidatePath } from 'next/cache';
 import prisma from '@/PrismaClientSingleton';
-import {  VoteSchema } from './schema';
+import { VoteSchema } from './schema';
 import { createSafeAction } from '@/lib/create-safe-action';
-
-
 
 const handleVote = async (
   data: VoteUpdateType
@@ -133,7 +128,7 @@ const handleVote = async (
             totalVotes: true,
           },
         });
-
+    revalidatePath(`/questions/${typeId}`);
     revalidatePath(`/`);
     return { data: updatedEntity };
   } catch (error) {

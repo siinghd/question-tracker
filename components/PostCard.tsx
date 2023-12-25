@@ -66,8 +66,8 @@ const PostCard: React.FC<IProps> = ({
       toast.error(error);
     },
   });
-  const handleSubmit = () => {
-
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     execute({
       content: markDownValue,
       questionId: questionId,
@@ -77,7 +77,7 @@ const PostCard: React.FC<IProps> = ({
 
   const internalDetails = () => {
     return (
-      <div>
+      <div className='w-full'>
         <div className="flex items-center justify-start gap-3 my-2">
           <Avatar className="cursor-pointer">
             <AvatarImage
@@ -107,33 +107,46 @@ const PostCard: React.FC<IProps> = ({
           <TextSnippet className="text-lg  py-2">{post?.title}</TextSnippet>
         )}
         {post.content && (
-          <TextSnippet className="text-md  py-2">
-            <MDEditor.Markdown
-              source={post.content}
-              style={{ whiteSpace: 'pre-wrap' }}
-            />
-          </TextSnippet>
+          <MDEditor.Markdown
+            source={post.content}
+            style={{
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
+            }}
+          />
         )}
 
         <div className="flex gap-3 p-3">
-          <TextSnippet
-            className="flex items-center gap-2 cursor-pointer"
-            onClick={() => setEnableReply((prev) => !prev)}
-          >
+          {reply && (
+            <TextSnippet
+              className="flex items-center gap-2 cursor-pointer"
+              onClick={() => setEnableReply((prev) => !prev)}
+            >
+              <MessageSquareReply
+                size={18}
+                color="#3B81F6"
+                fill="#3B81F6"
+                className="hover:scale-125 duration-300 ease-in-out"
+              />
+              <p className="text-sm">
+                {reply && enableReply ? 'close' : 'reply'}
+              </p>
+            </TextSnippet>
+          )}
+          <TextSnippet className="flex items-center gap-2 cursor-pointer">
             <MessageSquareReply
               size={18}
               color="#3B81F6"
               fill="#3B81F6"
               className="hover:scale-125 duration-300 ease-in-out"
             />
-            <p className="text-sm">
-              {reply && enableReply ? 'close' : 'reply'}
-            </p>
+            <p className="text-sm">{post.totalAnswers}</p>
           </TextSnippet>
         </div>
 
         {enableReply && (
-          <form action={handleSubmit}>
+          <form onSubmit={handleSubmit}>
             <MDEditor
               id={post.id}
               value={markDownValue}
@@ -149,63 +162,61 @@ const PostCard: React.FC<IProps> = ({
     );
   };
   return (
-    <div>
-      <Card className="bg-background w-full">
-        <CardBody className="flex gap-5 items-start justify-between">
-          <VoteForm
-            votes={post.totalVotes}
-            questionId={isAnswer ? undefined : post.id}
-            answerId={isAnswer ? post.id : undefined}
-            key={post.id}
-          />
+    <Card className="w-full  bg-background ">
+      <CardBody className="flex gap-5 items-start justify-between">
+        <VoteForm
+          votes={post.totalVotes}
+          questionId={isAnswer ? undefined : post.id}
+          answerId={isAnswer ? post.id : undefined}
+          key={post.id}
+        />
 
-          <div className="flex flex-1 flex-row items-start justify-between w-full">
-            {enableLink && isExtendedQuestion(post) ? (
-              <Link href={`/questions/${post?.slug}`}>{internalDetails()}</Link>
-            ) : (
-              internalDetails()
-            )}
+        <div className="flex flex-1 flex-row items-start justify-between w-full">
+          {enableLink && isExtendedQuestion(post) ? (
+            <Link href={`/questions/${post?.slug}`}>{internalDetails()}</Link>
+          ) : (
+            internalDetails()
+          )}
 
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <MoreHorizontal
-                  size={35}
-                  className="active:outline-none hover:outline-none rounded-full border p-1.5 "
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <MoreHorizontal
+                size={35}
+                className="active:outline-none hover:outline-none rounded-full border p-1.5 "
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="rounded-xl backdrop-blur bg-gray-200/30  dark:bg-gray-700/30 px-2 cursor-pointer py-2">
+              {post?.author?.id === userId && (
+                <DeleteForm
+                  key={post.id}
+                  questionId={!isAnswer ? post.id : undefined}
+                  answerId={isAnswer ? post.id : undefined}
                 />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="rounded-xl backdrop-blur bg-gray-200/30  dark:bg-gray-700/30 px-2 cursor-pointer py-2">
-                {post?.author?.id === userId && (
-                  <DeleteForm
-                    key={post.id}
-                    questionId={post.id}
-                    answerId={undefined}
-                  />
-                )}
-                <hr />
-                {/* <DropdownMenuItem className="text-sm px-1 py-2 hover:border-none hover:outline-none">
+              )}
+              <hr />
+              {/* <DropdownMenuItem className="text-sm px-1 py-2 hover:border-none hover:outline-none">
                             Report spam
                           </DropdownMenuItem> */}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </CardBody>
-        {isAnswer && !isExtendedQuestion(post) && (
-          <CardFooter className="m-0 w-full">
-            {post.responses &&
-              post?.responses.length > 0 &&
-              post?.responses.map((post: Answer) => (
-                <PostCard
-                  key={post.id}
-                  questionId={post.questionId}
-                  post={post}
-                  userId={userId}
-                  reply={true}
-                />
-              ))}
-          </CardFooter>
-        )}
-      </Card>
-    </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardBody>
+      {isAnswer && !isExtendedQuestion(post) && (
+        <CardFooter className="m-0 w-full">
+          {post.responses &&
+            post?.responses.length > 0 &&
+            post?.responses.map((post: Answer) => (
+              <PostCard
+                key={post.id}
+                questionId={post.questionId}
+                post={post}
+                userId={userId}
+                reply={true}
+              />
+            ))}
+        </CardFooter>
+      )}
+    </Card>
   );
 };
 

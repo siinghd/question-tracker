@@ -69,8 +69,8 @@ export const NewPostDialog = () => {
       setFieldErrors({});
     }
   };
-  const onSubmit = (formData: FormData) => {
-
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const formData = new FormData(event.currentTarget);
     const title = formData.get('title');
 
     const tags = formData.get('tags');
@@ -84,7 +84,7 @@ export const NewPostDialog = () => {
 
   return (
     <Modal ref={ref} onClose={handleOnCloseClick}>
-      <form ref={formRef} action={onSubmit}>
+      <form ref={formRef} onSubmit={onSubmit}>
         <div className="fixed inset-0 flex items-center justify-center z-50  p-4 md:p-8">
           <div
             ref={containerRef}

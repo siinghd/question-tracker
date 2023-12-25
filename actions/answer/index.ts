@@ -24,30 +24,44 @@ const createAnswerHandler = async (
   const session = await auth();
 
   if (!session || !session.user.id) {
-    return {
-      error: 'Unauthorized',
-    };
+    return { error: 'Unauthorized' };
   }
 
   const { content, questionId, parentId } = data;
 
   try {
-    const answer = await prisma.answer.create({
-      data: {
+    const result = await prisma.$transaction(async (prisma) => {
+      const answerData = {
         content,
         questionId,
-        authorId: session.user.id,
-        parentId, // Include parentId if the answer is responding to another answer
-      },
+        authorId: session.user.id!,
+        parentId,
+      };
+
+      const answer = await prisma.answer.create({ data: answerData });
+
+      if (!parentId) {
+        const updatedQuestion = await prisma.question.update({
+          where: { id: questionId },
+          data: { totalAnswers: { increment: 1 } },
+        });
+      } else {
+        const updatedAnswer = await prisma.answer.update({
+          where: { id: parentId },
+          data: { totalAnswers: { increment: 1 } },
+        });
+      }
+
+      return answer;
     });
-    revalidatePath(`/questions/${answer.id}`);
+
+    revalidatePath(`/questions/${result.id}`);
     revalidatePath(`/`);
-    return { data: answer };
+
+    return { data: result };
   } catch (error) {
-    console.error(error);
-    return {
-      error: 'Failed to create answer.',
-    };
+    console.error('Error in createAnswerHandler:', error);
+    return { error: 'Failed to create answer.' };
   }
 };
 
@@ -106,6 +120,7 @@ const deleteAnswerHandler = async (
   // Check if the user is the author of the answer
   const answer = await prisma.answer.findUnique({
     where: { id: answerId },
+    include: { question: true },
   });
 
   if (!answer || answer.authorId !== session.user.id) {
@@ -116,7 +131,7 @@ const deleteAnswerHandler = async (
 
   try {
     await prisma.$transaction(async (prisma) => {
-      // Function to recursively delete answers
+      // Function to recursively delete answers and decrement totalReplies
       const deleteNestedAnswers = async (parentId: string) => {
         const childAnswers = await prisma.answer.findMany({
           where: { parentId },
@@ -125,17 +140,37 @@ const deleteAnswerHandler = async (
         for (const childAnswer of childAnswers) {
           await deleteNestedAnswers(childAnswer.id); // Recursively delete children
           await prisma.answer.delete({ where: { id: childAnswer.id } });
+          // Decrement totalReplies for each child answer
+          await prisma.answer.update({
+            where: { id: parentId },
+            data: { totalAnswers: { decrement: 1 } },
+          });
         }
       };
 
       // Delete all nested answers recursively
       await deleteNestedAnswers(answerId);
 
+      // Decrement totalReplies on the parent answer or question
+      if (answer.parentId) {
+        await prisma.answer.update({
+          where: { id: answer.parentId },
+          data: { totalAnswers: { decrement: 1 } },
+        });
+      } else if (answer.questionId) {
+        await prisma.question.update({
+          where: { id: answer.questionId },
+          data: { totalAnswers: { decrement: 1 } },
+        });
+      }
+
       // Now delete the answer itself
       await prisma.answer.delete({ where: { id: answerId } });
     });
+
     revalidatePath(`/questions/${answerId}`);
     revalidatePath(`/`);
+
     return {
       data: { message: 'Answer and all nested answers deleted successfully' },
     };

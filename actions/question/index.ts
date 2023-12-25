@@ -18,6 +18,7 @@ import {
 } from './schema';
 import { createSafeAction } from '@/lib/create-safe-action';
 import { generateHandle } from '@/lib/functions';
+import { redirect } from 'next/navigation';
 
 const createQuestionHandler = async (
   data: InputTypeCreate
@@ -145,7 +146,6 @@ const deleteQuestionHandler = async (
 
   const { questionId } = data;
 
-  // Check if the user is the author of the question
   const question = await prisma.question.findUnique({
     where: { id: questionId },
   });
@@ -157,22 +157,41 @@ const deleteQuestionHandler = async (
   }
 
   try {
-    // Start a transaction to delete answers and the question
     await prisma.$transaction(async (prisma) => {
+      // Function to recursively delete answers
+      const deleteAnswers = async (questionId: string) => {
+        const answers = await prisma.answer.findMany({
+          where: { questionId: questionId },
+        });
+
+        for (const answer of answers) {
+          if (answer.totalAnswers > 0) {
+            // Recursively delete child answers
+            await deleteAnswers(answer.id);
+          }
+          // Delete the answer
+          await prisma.answer.delete({
+            where: { id: answer.id },
+          });
+        }
+      };
+
       // Delete all answers associated with the question
-      await prisma.answer.deleteMany({
-        where: { questionId: questionId },
-      });
+      await deleteAnswers(questionId);
 
       // Now delete the question
       await prisma.question.delete({
         where: { id: questionId },
       });
     });
+
     revalidatePath(`/questions/${questionId}`);
     revalidatePath(`/`);
+
     return {
-      data: { message: 'Question and associated answers deleted successfully' },
+      data: {
+        message: 'Question and all associated answers deleted successfully',
+      },
     };
   } catch (error) {
     console.error(error);

@@ -7,6 +7,7 @@ import { deleteQuestion } from '@/actions/question';
 import { deleteAnswer } from '@/actions/answer';
 import { ActionState } from '@/lib/create-safe-action';
 import { Delete } from '@/types';
+import { redirect, useRouter } from 'next/navigation';
 interface IVoteFormProps {
   questionId: string | undefined;
   answerId: string | undefined;
@@ -18,7 +19,7 @@ type DeleteAction = (
 
 const DeleteForm: React.FC<IVoteFormProps> = ({ questionId, answerId }) => {
   const idForm = useId();
-
+  const router = useRouter();
   // Define a unified delete action
   const deleteAction: DeleteAction = async ({ questionId, answerId }) => {
     if (questionId) {
@@ -33,6 +34,9 @@ const DeleteForm: React.FC<IVoteFormProps> = ({ questionId, answerId }) => {
   const { execute, fieldErrors, setFieldErrors } = useAction(deleteAction, {
     onSuccess: (data) => {
       toast.success(`${data.message}`);
+      if (questionId) {
+        router.push('/');
+      }
     },
     onError: (error) => {
       toast.error(error);
