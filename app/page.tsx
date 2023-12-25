@@ -119,7 +119,7 @@ export default async function Home({
       <NewPostDialog />
       <div className="container mx-auto md:p-10 ">
         <div className="flex flex-col items-center p-4 dark:text-white">
-          <p>Coming soon: Reply to answers, Live session with questions</p>
+          <p>Coming soon: Live session with questions and more</p>
           {/* <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
             <Image
               alt="User profile"
