@@ -202,7 +202,7 @@ const PostCard: React.FC<IProps> = ({
         </div>
       </CardBody>
       {isAnswer && !isExtendedQuestion(post) && (
-        <CardFooter className="m-0 w-full">
+        <CardFooter className="m-0 w-full flex-col">
           {post.responses &&
             post?.responses.length > 0 &&
             post?.responses.map((post: Answer) => (
