@@ -44,6 +44,7 @@ export default async function Home({
   searchParams: QueryParams;
 }) {
   const session = await auth();
+  const sessionId = session?.user.id;
 
   const getQuestionsWithQuery = async (
     additionalQuery: Partial<QuestionQuery>
@@ -52,7 +53,6 @@ export default async function Home({
       take: paginationData(searchParams).pageSize,
       skip: paginationData(searchParams).skip,
     };
-
     const searchQuery = searchParams.search
       ? {
           where: {
@@ -75,6 +75,15 @@ export default async function Home({
         slug: true,
         createdAt: true,
         updatedAt: true,
+        votes: {
+          where: {
+            userId: sessionId,
+          },
+          select: {
+            userId: true,
+            value: true,
+          },
+        },
         author: {
           select: {
             id: true,
@@ -90,6 +99,7 @@ export default async function Home({
         ...searchQuery,
         ...additionalQuery,
       });
+
       return { data, error: null };
     } catch (error) {
       const errorMessage =
@@ -110,7 +120,7 @@ export default async function Home({
     response = await getQuestionsWithQuery({ orderBy: { createdAt: 'desc' } });
   } else {
     response = await getQuestionsWithQuery({
-      where: { authorId: session?.user.id },
+      where: { authorId: sessionId },
     });
   }
 
@@ -201,6 +211,7 @@ export default async function Home({
                   questionId={post.id}
                   enableLink={true}
                   reply={false}
+                  votes={post.votes}
                 />
               ))}
             </div>
