@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import dayjs from "dayjs";
 import prisma from "@/PrismaClientSingleton";
-import Pagination from "@/components/paging";
+import Paging from "@/components/paging";
 import { ExtendedQuestion, QuestionQuery } from "@/actions/question/types";
 import { Question } from "@prisma/client";
 import Search from "@/components/search";
@@ -203,7 +203,7 @@ export default async function Home({
 						</div>
 					</div>
 				</div>
-				<Pagination dataLength={response?.data?.length || 0} />
+				<Paging dataLength={response?.data?.length || 0} />
 			</div>
 		</>
 	);

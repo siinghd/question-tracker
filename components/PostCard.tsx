@@ -177,27 +177,29 @@ const PostCard: React.FC<IProps> = ({
 						internalDetails()
 					)}
 
-					<DropdownMenu>
-						<DropdownMenuTrigger>
-							<MoreHorizontal
-								size={35}
-								className='active:outline-none hover:outline-none rounded-full border p-1.5 '
-							/>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent className='rounded-xl backdrop-blur bg-gray-200/30  dark:bg-gray-700/30 px-2 cursor-pointer py-2'>
-							{post?.author?.id === userId && (
-								<DeleteForm
-									key={post.id}
-									questionId={!isAnswer ? post.id : undefined}
-									answerId={isAnswer ? post.id : undefined}
+					{post?.author?.id === userId && (
+						<DropdownMenu>
+							<DropdownMenuTrigger>
+								<MoreHorizontal
+									size={35}
+									className='active:outline-none hover:outline-none rounded-full border p-1.5 '
 								/>
-							)}
-							<hr />
-							{/* <DropdownMenuItem className="text-sm px-1 py-2 hover:border-none hover:outline-none">
+							</DropdownMenuTrigger>
+							<DropdownMenuContent className='rounded-xl backdrop-blur bg-gray-200/30  dark:bg-gray-700/30 px-2 cursor-pointer py-2'>
+								{post?.author?.id === userId && (
+									<DeleteForm
+										key={post.id}
+										questionId={!isAnswer ? post.id : undefined}
+										answerId={isAnswer ? post.id : undefined}
+									/>
+								)}
+								<hr />
+								{/* <DropdownMenuItem className="text-sm px-1 py-2 hover:border-none hover:outline-none">
                             Report spam
                           </DropdownMenuItem> */}
-						</DropdownMenuContent>
-					</DropdownMenu>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					)}
 				</div>
 			</CardBody>
 			{isAnswer && !isExtendedQuestion(post) && (
