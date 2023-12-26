@@ -1,23 +1,23 @@
-import { auth } from '@/auth';
-import { NewPostDialog } from '@/components/NewPostDialog';
-import { QueryParams, TabType } from '@/types';
-import { getUpdatedUrl, paginationData } from '@/lib/functions';
-import Image from 'next/image';
-import Link from 'next/link';
-import dayjs from 'dayjs';
-import prisma from '@/PrismaClientSingleton';
-import Pagination from '@/components/pagination';
-import { ExtendedQuestion, QuestionQuery } from '@/actions/question/types';
-import { Question } from '@prisma/client';
-import Search from '@/components/search';
+import { auth } from "@/auth";
+import { NewPostDialog } from "@/components/NewPostDialog";
+import { QueryParams, TabType } from "@/types";
+import { getUpdatedUrl, paginationData } from "@/lib/functions";
+import Image from "next/image";
+import Link from "next/link";
+import dayjs from "dayjs";
+import prisma from "@/PrismaClientSingleton";
+import Pagination from "@/components/pagination";
+import { ExtendedQuestion, QuestionQuery } from "@/actions/question/types";
+import { Question } from "@prisma/client";
+import Search from "@/components/search";
 
-import VoteForm from '@/components/form/form-vote';
-import { Card, CardBody } from '@/components/card';
-import { VoteBlock, VoteScore } from '@/components/voteScore';
-import { ArrowUpDownIcon, Minus, MoreHorizontal, Plus } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import TextSnippet from '@/components/textSnippet';
-import Tag from '@/components/tag';
+import VoteForm from "@/components/form/form-vote";
+import { Card, CardBody } from "@/components/card";
+import { VoteBlock, VoteScore } from "@/components/voteScore";
+import { ArrowUpDownIcon, Minus, MoreHorizontal, Plus } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import TextSnippet from "@/components/textSnippet";
+import Tag from "@/components/tag";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,11 +25,11 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import DeleteForm from '@/components/form/form-delete';
-import MDEditor from '@uiw/react-md-editor';
-import PostCard from '@/components/PostCard';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/dropdown-menu";
+import DeleteForm from "@/components/form/form-delete";
+import MDEditor from "@uiw/react-md-editor";
+import PostCard from "@/components/PostCard";
+import { Button } from "@/components/ui/button";
 
 type QuestionsResponse = {
   data: ExtendedQuestion[] | null;
@@ -59,7 +59,7 @@ export default async function Home({
             ...additionalQuery.where, // Merge with existing where conditions
             title: {
               contains: searchParams.search,
-              mode: 'insensitive' as const, // Ensuring the mode is a specific allowed value
+              mode: "insensitive" as const, // Ensuring the mode is a specific allowed value
             },
           },
         }
@@ -93,7 +93,7 @@ export default async function Home({
       return { data, error: null };
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'An unknown error occurred';
+        error instanceof Error ? error.message : "An unknown error occurred";
       return { data: null, error: errorMessage };
     }
   };
@@ -105,9 +105,9 @@ export default async function Home({
     !searchParams.tabType ||
     searchParams.tabType === TabType.mu
   ) {
-    response = await getQuestionsWithQuery({ orderBy: { totalVotes: 'desc' } });
+    response = await getQuestionsWithQuery({ orderBy: { totalVotes: "desc" } });
   } else if (searchParams.tabType === TabType.mr) {
-    response = await getQuestionsWithQuery({ orderBy: { createdAt: 'desc' } });
+    response = await getQuestionsWithQuery({ orderBy: { createdAt: "desc" } });
   } else {
     response = await getQuestionsWithQuery({
       where: { authorId: session?.user.id },
@@ -136,7 +136,7 @@ export default async function Home({
           <div className="w-full my-4 border-b dark:border-gray-600 flex justify-center space-x-4">
             <Link
               className="py-2"
-              href={getUpdatedUrl('/', searchParams, {
+              href={getUpdatedUrl("/", searchParams, {
                 tabType: TabType.mq,
               })}
             >
@@ -145,11 +145,11 @@ export default async function Home({
 
             <Link
               className="py-2"
-              href={getUpdatedUrl('/', searchParams, {
+              href={getUpdatedUrl("/", searchParams, {
                 newPost:
-                  searchParams.newPost === 'close' || !searchParams.newPost
-                    ? 'open'
-                    : 'close',
+                  searchParams.newPost === "close" || !searchParams.newPost
+                    ? "open"
+                    : "close",
               })}
             >
               ASK A QUESTION (AAK)
@@ -168,7 +168,7 @@ export default async function Home({
                 <DropdownMenuContent align="end" className="w-[200px]">
                   <DropdownMenuRadioGroup value={tabType}>
                     <Link
-                      href={getUpdatedUrl('/', searchParams, {
+                      href={getUpdatedUrl("/", searchParams, {
                         tabType: TabType.mu,
                       })}
                     >
@@ -177,7 +177,7 @@ export default async function Home({
                       </DropdownMenuRadioItem>
                     </Link>
                     <Link
-                      href={getUpdatedUrl('/', searchParams, {
+                      href={getUpdatedUrl("/", searchParams, {
                         tabType: TabType.mr,
                       })}
                     >
