@@ -1,13 +1,13 @@
-"use client";
-import React from "react";
-import { Button } from "../ui/button";
-import { FormErrors } from "./form-errors";
-import { useAction } from "@/hooks/useAction";
-import { updateVote } from "@/actions/vote";
-import { toast } from "sonner";
-import { VoteBlock, VoteScore } from "../voteScore";
-import { Minus, Plus } from "lucide-react";
-import clsx from "clsx";
+'use client';
+import React from 'react';
+import { Button } from '../ui/button';
+import { FormErrors } from './form-errors';
+import { useAction } from '@/hooks/useAction';
+import { updateVote } from '@/actions/vote';
+import { toast } from 'sonner';
+import { VoteBlock, VoteScore } from '../voteScore';
+import { Minus, Plus } from 'lucide-react';
+import clsx from 'clsx';
 interface IVoteFormProps {
   questionId: string | undefined;
   answerId: string | undefined;
@@ -45,13 +45,13 @@ const VoteForm: React.FC<IVoteFormProps> = ({
           className={clsx(
             `rounded-t-xl cursor-pointer bg-[#F3F4F6]  duration-300 ease-in-out dark:bg-gray-900`,
             userVoted && userVoteVal.value === 1
-              ? "opacity-20 cursor-not-allowed"
-              : "hover:bg-gray-200 dark:hover:bg-gray-950"
+              ? 'opacity-20 cursor-not-allowed'
+              : 'hover:bg-gray-200 dark:hover:bg-gray-950'
           )}
         >
           <button
             className={clsx(
-              userVoted && userVoteVal.value === 1 ? "cursor-not-allowed" : ""
+              userVoted && userVoteVal.value === 1 ? 'cursor-not-allowed' : ''
             )}
             disabled={userVoted && userVoteVal.value === 1}
             type="submit"
@@ -66,10 +66,10 @@ const VoteForm: React.FC<IVoteFormProps> = ({
       <form id="vote-down" action={handleDownVote} className="w-full">
         <VoteBlock
           className={clsx(
-            "rounded-b-xl cursor-pointer bg-[#F3F4F6 duration-300 dark:bg-gray-900 ease-in-out",
+            'rounded-b-xl cursor-pointer bg-[#F3F4F6 duration-300 dark:bg-gray-900 ease-in-out',
             userVoted && userVoteVal.value === -1
-              ? "opacity-20 cursor-not-allowed"
-              : "hover:bg-gray-200 dark:hover:bg-gray-950"
+              ? 'opacity-20 cursor-not-allowed'
+              : 'hover:bg-gray-200 dark:hover:bg-gray-950'
           )}
         >
           <button
