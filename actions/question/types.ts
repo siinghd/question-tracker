@@ -42,15 +42,6 @@ export interface QuestionQuery {
         image: boolean;
       };
     };
-    votes: {
-      where: {
-        userId: string | undefined,
-      },
-      select: {
-        userId: boolean,
-        value: boolean
-      },
-    }
     // Add other fields as needed
   };
   where?: {
@@ -83,5 +74,4 @@ export interface ExtendedQuestion {
   tags: string[];
   updatedAt: Date;
   author: Author;
-  votes: any[]
 }
