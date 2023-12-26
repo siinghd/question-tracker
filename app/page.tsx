@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import dayjs from "dayjs";
 import prisma from "@/PrismaClientSingleton";
-import Pagination from "@/components/pagination";
+import Pagination from "@/components/paging";
 import { ExtendedQuestion, QuestionQuery } from "@/actions/question/types";
 import { Question } from "@prisma/client";
 import Search from "@/components/search";
