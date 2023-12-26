@@ -35,7 +35,7 @@ export const searchParamsToObject = (
 export const paginationData = (searchParams: QueryParams) => {
 	const pageNumber = parseInt((searchParams.page || 1).toString());
 	const pageSize = Math.min(
-		parseInt((searchParams.limit || 10).toString()) || 100
+		parseInt((searchParams.limit || 30).toString()) || 100
 	);
 	const skip = (pageNumber - 1) * pageSize;
 

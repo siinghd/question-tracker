@@ -26,108 +26,84 @@ const handleVote = async (
     };
   }
 
+  if (![1, -1].includes(value)) {
+    return {
+      error: 'Invalid vote value',
+    };
+  }
+
   const voteType = questionId ? 'question' : 'answer';
   const typeId = questionId || answerId;
 
   try {
-    // Check for existing vote
-    const existingVote = await prisma.vote.findFirst({
-      where: {
-        userId: session.user.id,
-        [`${voteType}Id`]: typeId,
-      },
-    });
+    await prisma.$transaction(async (prisma) => {
+      const existingVote = await prisma.vote.findFirst({
+        where: {
+          userId: session.user.id!,
+          [`${voteType}Id`]: typeId,
+        },
+      });
 
-    if (existingVote) {
-      if (existingVote.value === value) {
-        return {
-          error: `You have already ${
-            value === 1 ? 'upvoted' : 'downvoted'
-          } this ${voteType}.`,
-        };
-      }
-
-      await prisma.$transaction([
-        prisma.vote.update({
+      let incrementValue = value;
+      if (existingVote) {
+        if (existingVote.value === value) {
+          throw new Error(
+            `You have already ${
+              value === 1 ? 'upvoted' : 'downvoted'
+            } this ${voteType}.`
+          );
+        }
+        incrementValue *= 2; // Adjust for reversing the previous vote and applying the new one
+        await prisma.vote.update({
           where: {
             id: existingVote.id,
           },
           data: {
             value,
           },
-        }),
-        questionId
-          ? prisma.question.update({
-              where: {
-                id: typeId,
-              },
-              data: {
-                totalVotes: {
-                  increment: value * 2,
-                },
-              },
-            })
-          : prisma.answer.update({
-              where: {
-                id: typeId,
-              },
-              data: {
-                totalVotes: {
-                  increment: value * 2,
-                },
-              },
-            }),
-      ]);
-    } else {
-      await prisma.$transaction([
-        prisma.vote.create({
+        });
+      } else {
+        await prisma.vote.create({
           data: {
             value,
-            userId: session.user.id,
+            userId: session.user.id!,
             [`${voteType}Id`]: typeId,
           },
-        }),
-        questionId
-          ? prisma.question.update({
-              where: {
-                id: typeId,
-              },
-              data: {
-                totalVotes: {
-                  increment: value,
-                },
-              },
-            })
-          : prisma.answer.update({
-              where: {
-                id: typeId,
-              },
-              data: {
-                totalVotes: {
-                  increment: value,
-                },
-              },
-            }),
-      ]);
-    }
+        });
+      }
 
+      // Update total votes on question or answer
+      const updateData = {
+        totalVotes: {
+          increment: incrementValue,
+        },
+      };
+
+      if (questionId) {
+        await prisma.question.update({
+          where: { id: typeId },
+          data: updateData,
+        });
+      } else {
+        await prisma.answer.update({
+          where: { id: typeId },
+          data: updateData,
+        });
+      }
+    });
+
+    // Fetch the updated entity after the transaction is complete
     const updatedEntity = questionId
       ? await prisma.question.findFirst({
-          where: {
-            id: typeId,
-          },
-          select: {
-            totalVotes: true,
-          },
+          where: { id: typeId },
+          select: { totalVotes: true },
         })
       : await prisma.answer.findFirst({
-          where: {
-            id: typeId,
-          },
-          select: {
-            totalVotes: true,
-          },
+          where: { id: typeId },
+          select: { totalVotes: true },
         });
+
+    // Revalidate paths outside the transaction
     revalidatePath(`/questions/${typeId}`);
     revalidatePath(`/`);
     return { data: updatedEntity };
@@ -138,5 +114,4 @@ const handleVote = async (
     };
   }
 };
-
 export const updateVote = createSafeAction(VoteSchema, handleVote);
