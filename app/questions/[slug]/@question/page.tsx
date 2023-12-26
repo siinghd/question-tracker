@@ -13,6 +13,7 @@ const SingleQuestionPage = async ({
   searchParams: QueryParams;
 }) => {
   const session = await auth();
+  const sessionId = session?.user.id;
   const question = await prisma.question.findUnique({
     where: {
       slug: params.slug,
@@ -33,6 +34,15 @@ const SingleQuestionPage = async ({
           id: true,
           name: true,
           image: true,
+        },
+      },
+      votes: {
+        where: {
+          userId: sessionId,
+        },
+        select: {
+          userId: true,
+          value: true,
         },
       },
     },
