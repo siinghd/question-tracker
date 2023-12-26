@@ -26,12 +26,15 @@ import { FormErrors } from "./form/form-errors";
 import { Answer } from "@/prisma/types";
 
 interface IProps {
+
 	post: ExtendedQuestion | Answer;
 	userId: string | undefined | null;
 	reply?: boolean;
 	enableLink?: boolean;
 	isAnswer?: boolean;
 	questionId: string;
+  votes?: any[];
+
 }
 const isExtendedQuestion = (
 	post: ExtendedQuestion | Answer
@@ -39,12 +42,15 @@ const isExtendedQuestion = (
 	return (post as ExtendedQuestion).slug !== undefined;
 };
 const PostCard: React.FC<IProps> = ({
-	post,
-	userId,
-	questionId,
-	reply = false,
-	enableLink = false,
-	isAnswer = true,
+
+  post,
+  userId,
+  questionId,
+  reply = false,
+  enableLink = false,
+  isAnswer = true,
+  votes,
+
 }) => {
 	const [markDownValue, setMarkDownValue] = useState("");
 	const [enableReply, setEnableReply] = useState(false);
@@ -75,33 +81,34 @@ const PostCard: React.FC<IProps> = ({
 		});
 	};
 
-	const internalDetails = () => {
-		return (
-			<div className='w-full'>
-				<div className='flex items-center justify-start gap-3 my-2'>
-					<Avatar className='cursor-pointer'>
-						<AvatarImage
-							className='h-10 w-10 rounded-full'
-							src={post?.author?.image || ""}
-						/>
-						<AvatarFallback>CN</AvatarFallback>
-					</Avatar>
-					<TextSnippet className='font-medium'>
-						{post?.author?.name}
-					</TextSnippet>
-					<TextSnippet className='text-sm text-gray-500'>
-						{dayjs(post.createdAt).format("MMM YYYY/DD HH:mm")}
-					</TextSnippet>
-					<TextSnippet className='w-[10px] h-[10px] bg-blue-500 rounded-full'></TextSnippet>
-					<TextSnippet className='text-sm text-gray-500 -ml-2'>
-						Edited on&nbsp;
-						{dayjs(post.updatedAt).format("MMM YYYY/DD HH:mm")}
-					</TextSnippet>
-				</div>
-				{isExtendedQuestion(post) &&
-					post.tags
-						.filter((v) => v !== "")
-						.map((v, index) => <Tag name={v} key={index + v} />)}
+  const internalDetails = () => {
+    return (
+      <div className="w-full">
+        <div className="flex items-center justify-start gap-3 my-2">
+          <Avatar className="cursor-pointer">
+            <AvatarImage
+              className="h-10 w-10 rounded-full"
+              src={post?.author?.image || ''}
+            />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+          <TextSnippet className="font-medium">
+            {post?.author?.name}
+          </TextSnippet>
+          <TextSnippet className="text-sm text-gray-500">
+            {dayjs(post.createdAt).format('MMM YYYY/DD HH:mm')}
+          </TextSnippet>
+          <TextSnippet className="w-[10px] h-[10px] bg-blue-500 rounded-full"></TextSnippet>
+          <TextSnippet className="text-sm text-gray-500 -ml-2">
+            Edited on&nbsp;
+            {dayjs(post.updatedAt).format('MMM YYYY/DD HH:mm')}
+          </TextSnippet>
+        </div>
+        {isExtendedQuestion(post) &&
+          post.tags
+            .filter((v) => v !== '')
+            .map((v, index) => <Tag name={v} key={index + v} />)}
+
 
 				{!isAnswer && isExtendedQuestion(post) && (
 					<TextSnippet className='text-lg  py-2'>{post?.title}</TextSnippet>
@@ -144,31 +151,33 @@ const PostCard: React.FC<IProps> = ({
 					</TextSnippet>
 				</div>
 
-				{enableReply && (
-					<form onSubmit={handleSubmit}>
-						<MDEditor
-							id={post.id}
-							value={markDownValue}
-							onChange={handleMarkdownChange}
-						/>
-						<FormErrors id='content' errors={fieldErrors} />
-						<Button type='submit' className='m-3'>
-							Reply
-						</Button>
-					</form>
-				)}
-			</div>
-		);
-	};
-	return (
-		<Card className='w-full  bg-background '>
-			<CardBody className='flex gap-5 items-start justify-between'>
-				<VoteForm
-					votes={post.totalVotes}
-					questionId={isAnswer ? undefined : post.id}
-					answerId={isAnswer ? post.id : undefined}
-					key={post.id}
-				/>
+        {enableReply && (
+          <form onSubmit={handleSubmit}>
+            <MDEditor
+              id={post.id}
+              value={markDownValue}
+              onChange={handleMarkdownChange}
+            />
+            <FormErrors id="content" errors={fieldErrors} />
+            <Button type="submit" className="m-3">
+              Reply
+            </Button>
+          </form>
+        )}
+      </div>
+    );
+  };
+  return (
+    <Card className="w-full  bg-background ">
+      <CardBody className="flex gap-5 items-start justify-between">
+        <VoteForm
+          votes={post.totalVotes}
+          questionId={isAnswer ? undefined : post.id}
+          answerId={isAnswer ? post.id : undefined}
+          key={post.id}
+          votesArr={votes || []}
+        />
+
 
 				<div className='flex flex-1 flex-row items-start justify-between w-full'>
 					{enableLink && isExtendedQuestion(post) ? (
@@ -196,27 +205,28 @@ const PostCard: React.FC<IProps> = ({
 							{/* <DropdownMenuItem className="text-sm px-1 py-2 hover:border-none hover:outline-none">
                             Report spam
                           </DropdownMenuItem> */}
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
-			</CardBody>
-			{isAnswer && !isExtendedQuestion(post) && (
-				<CardFooter className='m-0 w-full'>
-					{post.responses &&
-						post?.responses.length > 0 &&
-						post?.responses.map((post: Answer) => (
-							<PostCard
-								key={post.id}
-								questionId={post.questionId}
-								post={post}
-								userId={userId}
-								reply={true}
-							/>
-						))}
-				</CardFooter>
-			)}
-		</Card>
-	);
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardBody>
+      {isAnswer && !isExtendedQuestion(post) && (
+        <CardFooter className="m-0 w-full flex-col">
+          {post.responses &&
+            post?.responses.length > 0 &&
+            post?.responses.map((post: Answer) => (
+              <PostCard
+                key={post.id}
+                questionId={post.questionId}
+                post={post}
+                userId={userId}
+                reply={true}
+              />
+            ))}
+        </CardFooter>
+      )}
+    </Card>
+  );
+
 };
 
 export default PostCard;
