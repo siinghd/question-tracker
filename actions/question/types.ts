@@ -43,6 +43,15 @@ export interface QuestionQuery {
       };
     };
     // Add other fields as needed
+    votes: {
+      where: {
+        userId: string | undefined,
+      },
+      select: {
+        userId: boolean,
+        value: boolean
+      },
+    }
   };
   where?: {
     authorId?: string;
@@ -74,4 +83,6 @@ export interface ExtendedQuestion {
   tags: string[];
   updatedAt: Date;
   author: Author;
+  votes: any[]
 }
+
