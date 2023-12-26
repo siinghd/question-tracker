@@ -28,11 +28,11 @@ export interface User {
 	email?: string | null;
 	emailVerified?: Date | null;
 	image?: string | null;
-	accounts: Account[];
-	sessions: Session[];
-	questions: Question[];
-	answers: Answer[];
-	votes: Vote[];
+	accounts?: Account[];
+	sessions?: Session[];
+	questions?: Question[];
+	answers?: Answer[];
+	votes?: Vote[];
 }
 
 export interface VerificationToken {
@@ -43,37 +43,42 @@ export interface VerificationToken {
 }
 
 export interface Question {
-	id: string;
-	title: string;
-	content: string;
-	createdAt: Date;
-	updatedAt: Date;
-	author: User;
-	authorId: string;
-	answers: Answer[];
-	votes: Vote[];
-	tags: string[];
+  id: string;
+  title: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  author: User;
+  authorId: string;
+  slug: string;
+  answers?: Answer[];
+  votes?: Vote[];
+  tags?: string[];
+  totalVotes: number;
+  totalAnswers: number;
 }
 
 export interface Answer {
-	id: string;
-	content: string;
-	createdAt: Date;
-	updatedAt: Date;
-	question: Question;
-	questionId: string;
-	author: User;
-	authorId: string;
-	votes: Vote[];
-	parentId?: string | null;
-	responses: Answer[];
-	parent?: Answer | null;
+  id: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  question?: Question;
+  questionId: string;
+  author?: User;
+  authorId: string;
+  votes?: Vote[];
+  parentId?: string | null;
+  responses?: Answer[];
+  parent?: Answer | null;
+  totalVotes: number;
+  totalAnswers: number;
 }
 
 export interface Vote {
 	id: string;
 	value: number;
-	user: User;
+	user?: User;
 	userId: string;
 	question?: Question | null;
 	questionId?: string | null;

@@ -1,3 +1,4 @@
+'use client'
 import { useCallback, useEffect, useState } from "react";
 
 const useColorGenerator = (name: string = "M1000"): [string, string] => {
@@ -25,7 +26,6 @@ const useColorGenerator = (name: string = "M1000"): [string, string] => {
 	const updateColor = useCallback(() => {
 		const hexColor = stringToHexColor(name);
 		const isDark = isColorDark(hexColor);
-		console.log(name.split(" ").length, "-dark");
 		const textColor =
 			name.split(" ").length === 1 ? "#ffffff" : isDark ? "#ffffff" : "#000000";
 		setColors([hexColor, textColor]);

@@ -59,5 +59,6 @@ export const useAction = <TInput, TOutput>(
     error,
     data,
     isLoading,
+    setFieldErrors,
   };
 };

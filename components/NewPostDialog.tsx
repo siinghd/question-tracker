@@ -48,20 +48,30 @@ export const NewPostDialog = () => {
     }
   }, [onClose, onOpen, paramsObject.newPost]);
 
-  const handleOnCloseClick = () => {
-    router.push(getUpdatedUrl(path + '/', paramsObject, { newPost: 'close' }));
-  };
-  const { execute, fieldErrors } = useAction(createQuestion, {
+  const { execute, fieldErrors, setFieldErrors } = useAction(createQuestion, {
     onSuccess: (data) => {
       toast.success(`Question "${data.title}" created`);
       formRef?.current?.reset();
+      if (!fieldErrors?.content && !fieldErrors?.title && !fieldErrors?.tags) {
+        setValue('');
+        router.push(
+          getUpdatedUrl(path + '/', paramsObject, { newPost: 'close' })
+        );
+      }
     },
     onError: (error) => {
       toast.error(error);
     },
   });
-
-  const onSubmit = (formData: FormData) => {
+  const handleOnCloseClick = () => {
+    router.push(getUpdatedUrl(path + '/', paramsObject, { newPost: 'close' }));
+    if (fieldErrors?.content || fieldErrors?.title || fieldErrors?.tags) {
+      setFieldErrors({});
+    }
+  };
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget);
     const title = formData.get('title');
 
     const tags = formData.get('tags');
@@ -71,16 +81,11 @@ export const NewPostDialog = () => {
       content: value,
       tags: (tags?.toString() || '').split(','),
     });
-    if (!fieldErrors?.content && !fieldErrors?.title && !fieldErrors?.tags) {
-      setValue('');
-      router.push(
-        getUpdatedUrl(path + '/', paramsObject, { newPost: 'close' })
-      );
-    }
   };
+
   return (
     <Modal ref={ref} onClose={handleOnCloseClick}>
-      <form ref={formRef} action={onSubmit}>
+      <form ref={formRef} onSubmit={onSubmit}>
         <div className="fixed inset-0 flex items-center justify-center z-50  p-4 md:p-8">
           <div
             ref={containerRef}
@@ -114,7 +119,7 @@ export const NewPostDialog = () => {
               placeholder="Enter tags seperated by comma : hello,world"
               errors={fieldErrors}
             />
-            <Button type="submit">Hello world</Button>
+            <Button type="submit">Post-it</Button>
           </div>
         </div>
       </form>
