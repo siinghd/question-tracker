@@ -32,7 +32,7 @@ interface IProps {
   enableLink?: boolean;
   isAnswer?: boolean;
   questionId: string;
-  votes: any[];
+  votes?: any[];
 }
 const isExtendedQuestion = (
   post: ExtendedQuestion | Answer
@@ -171,7 +171,7 @@ const PostCard: React.FC<IProps> = ({
           questionId={isAnswer ? undefined : post.id}
           answerId={isAnswer ? post.id : undefined}
           key={post.id}
-          votesArr={votes}
+          votesArr={votes || []}
         />
 
         <div className="flex flex-1 flex-row items-start justify-between w-full">
