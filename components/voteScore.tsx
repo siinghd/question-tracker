@@ -15,7 +15,7 @@ const VoteScore = forwardRef<
 	/>
 ));
 
-VoteScore.displayName = "VoteScore"; // Add this line
+VoteScore.displayName = "VoteScore";
 
 const VoteBlock = forwardRef<
 	HTMLDivElement,

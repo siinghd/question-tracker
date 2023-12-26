@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import useColorGenerator from "@/hooks/useColorGenerator";
 import { cn } from "@/lib/utils";
 import React, { forwardRef, Ref } from "react";
