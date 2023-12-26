@@ -36,7 +36,7 @@ const handleVote = async (
   const typeId = questionId || answerId;
 
   try {
-    await prisma.$transaction(async (prisma) => {
+    await prisma.$transaction(async prisma => {
       const existingVote = await prisma.vote.findFirst({
         where: {
           userId: session.user.id!,

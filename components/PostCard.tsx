@@ -35,7 +35,7 @@ interface IProps {
   votes?: any[];
 }
 const isExtendedQuestion = (
-  post: ExtendedQuestion | Answer
+  post: ExtendedQuestion | Answer,
 ): post is ExtendedQuestion => {
   return (post as ExtendedQuestion).slug !== undefined;
 };

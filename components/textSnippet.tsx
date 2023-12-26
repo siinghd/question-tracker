@@ -1,13 +1,13 @@
-import { cn } from "@/lib/utils";
-import { forwardRef } from "react";
+import { cn } from '@/lib/utils';
+import { forwardRef } from 'react';
 
 const TextSnippet = forwardRef<
-	HTMLDivElement,
-	React.HTMLAttributes<HTMLDivElement>
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-	<div ref={ref} className={cn("", className)} {...props} />
+  <div ref={ref} className={cn('', className)} {...props} />
 ));
 
-TextSnippet.displayName = "TextSnippet";
+TextSnippet.displayName = 'TextSnippet';
 
 export default TextSnippet;

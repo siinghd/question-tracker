@@ -7,7 +7,7 @@ interface ModalProps {
 
 const Modal = forwardRef<HTMLDialogElement, ModalProps>(function ModalComponent(
   { children, onClose },
-  ref
+  ref,
 ) {
   return <dialog ref={ref}>{children}</dialog>;
 });

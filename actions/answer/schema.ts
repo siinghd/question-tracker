@@ -12,4 +12,3 @@ export const AnswerUpdateSchema = z.object({
 export const AnswerDeleteSchema = z.object({
   answerId: z.string(),
 });
-  

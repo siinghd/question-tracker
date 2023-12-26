@@ -48,12 +48,12 @@ const VoteForm: React.FC<IVoteFormProps> = ({
             `rounded-t-xl cursor-pointer bg-[#F3F4F6]  duration-300 ease-in-out dark:bg-gray-900`,
             userVoted && userVoteVal.value === 1
               ? 'opacity-20 cursor-not-allowed'
-              : 'hover:bg-gray-200 dark:hover:bg-gray-950'
+              : 'hover:bg-gray-200 dark:hover:bg-gray-950',
           )}
         >
           <button
             className={clsx(
-              userVoted && userVoteVal.value === 1 ? 'cursor-not-allowed' : ''
+              userVoted && userVoteVal.value === 1 ? 'cursor-not-allowed' : '',
             )}
             disabled={userVoted && userVoteVal.value === 1}
             type="submit"
@@ -71,7 +71,7 @@ const VoteForm: React.FC<IVoteFormProps> = ({
             'rounded-b-xl cursor-pointer bg-[#F3F4F6 duration-300 dark:bg-gray-900 ease-in-out',
             userVoted && userVoteVal.value === -1
               ? 'opacity-20 cursor-not-allowed'
-              : 'hover:bg-gray-200 dark:hover:bg-gray-950'
+              : 'hover:bg-gray-200 dark:hover:bg-gray-950',
           )}
         >
           <button

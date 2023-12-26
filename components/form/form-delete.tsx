@@ -14,7 +14,7 @@ interface IVoteFormProps {
 }
 type DeleteActionData = { questionId?: string; answerId?: string };
 type DeleteAction = (
-  data: DeleteActionData
+  data: DeleteActionData,
 ) => Promise<ActionState<DeleteActionData, Delete>>;
 
 const DeleteForm: React.FC<IVoteFormProps> = ({ questionId, answerId }) => {
