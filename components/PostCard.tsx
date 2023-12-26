@@ -1,29 +1,29 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Card, CardBody, CardFooter } from './card';
-import VoteForm from './form/form-vote';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import TextSnippet from './textSnippet';
-import dayjs from 'dayjs';
-import MDEditor from '@uiw/react-md-editor';
+import React, { useState } from "react";
+import { Card, CardBody, CardFooter } from "./card";
+import VoteForm from "./form/form-vote";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import TextSnippet from "./textSnippet";
+import dayjs from "dayjs";
+import MDEditor from "@uiw/react-md-editor";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
-import DeleteForm from './form/form-delete';
+} from "./ui/dropdown-menu";
+import DeleteForm from "./form/form-delete";
 
-import Link from 'next/link';
-import Tag from './tag';
-import { MessageSquareReply, MoreHorizontal } from 'lucide-react';
-import { ExtendedQuestion } from '@/actions/question/types';
-import { useAction } from '@/hooks/useAction';
-import { createAnswer } from '@/actions/answer';
-import { toast } from 'sonner';
-import { Button } from './ui/button';
-import { FormErrors } from './form/form-errors';
-import { Answer } from '@/prisma/types';
+import Link from "next/link";
+import Tag from "./tag";
+import { MessageSquareReply, MoreHorizontal } from "lucide-react";
+import { ExtendedQuestion } from "@/actions/question/types";
+import { useAction } from "@/hooks/useAction";
+import { createAnswer } from "@/actions/answer";
+import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { FormErrors } from "./form/form-errors";
+import { Answer } from "@/prisma/types";
 
 interface IProps {
   post: ExtendedQuestion | Answer;
@@ -32,6 +32,7 @@ interface IProps {
   enableLink?: boolean;
   isAnswer?: boolean;
   questionId: string;
+  votes: any[];
 }
 const isExtendedQuestion = (
   post: ExtendedQuestion | Answer
@@ -45,11 +46,12 @@ const PostCard: React.FC<IProps> = ({
   reply = false,
   enableLink = false,
   isAnswer = true,
+  votes,
 }) => {
-  const [markDownValue, setMarkDownValue] = useState('');
+  const [markDownValue, setMarkDownValue] = useState("");
   const [enableReply, setEnableReply] = useState(false);
   const handleMarkdownChange = (newValue?: string) => {
-    if (typeof newValue === 'string') {
+    if (typeof newValue === "string") {
       setMarkDownValue(newValue);
     }
   };
@@ -59,7 +61,7 @@ const PostCard: React.FC<IProps> = ({
       toast.success(`Answer created`);
       if (!fieldErrors?.content) {
         setEnableReply((prev) => !prev);
-        setMarkDownValue('');
+        setMarkDownValue("");
       }
     },
     onError: (error) => {
@@ -77,12 +79,12 @@ const PostCard: React.FC<IProps> = ({
 
   const internalDetails = () => {
     return (
-      <div className='w-full'>
+      <div className="w-full">
         <div className="flex items-center justify-start gap-3 my-2">
           <Avatar className="cursor-pointer">
             <AvatarImage
               className="h-10 w-10 rounded-full"
-              src={post?.author?.image || ''}
+              src={post?.author?.image || ""}
             />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
@@ -90,17 +92,17 @@ const PostCard: React.FC<IProps> = ({
             {post?.author?.name}
           </TextSnippet>
           <TextSnippet className="text-sm text-gray-500">
-            {dayjs(post.createdAt).format('MMM YYYY/DD HH:mm')}
+            {dayjs(post.createdAt).format("MMM YYYY/DD HH:mm")}
           </TextSnippet>
           <TextSnippet className="w-[10px] h-[10px] bg-blue-500 rounded-full"></TextSnippet>
           <TextSnippet className="text-sm text-gray-500 -ml-2">
             Edited on&nbsp;
-            {dayjs(post.updatedAt).format('MMM YYYY/DD HH:mm')}
+            {dayjs(post.updatedAt).format("MMM YYYY/DD HH:mm")}
           </TextSnippet>
         </div>
         {isExtendedQuestion(post) &&
           post.tags
-            .filter((v) => v !== '')
+            .filter((v) => v !== "")
             .map((v, index) => <Tag name={v} key={index + v} />)}
 
         {!isAnswer && isExtendedQuestion(post) && (
@@ -110,9 +112,9 @@ const PostCard: React.FC<IProps> = ({
           <MDEditor.Markdown
             source={post.content}
             style={{
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-              overflowWrap: 'break-word',
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+              overflowWrap: "break-word",
             }}
           />
         )}
@@ -130,7 +132,7 @@ const PostCard: React.FC<IProps> = ({
                 className="hover:scale-125 duration-300 ease-in-out"
               />
               <p className="text-sm">
-                {reply && enableReply ? 'close' : 'reply'}
+                {reply && enableReply ? "close" : "reply"}
               </p>
             </TextSnippet>
           )}
@@ -169,6 +171,7 @@ const PostCard: React.FC<IProps> = ({
           questionId={isAnswer ? undefined : post.id}
           answerId={isAnswer ? post.id : undefined}
           key={post.id}
+          votesArr={votes}
         />
 
         <div className="flex flex-1 flex-row items-start justify-between w-full">
