@@ -18,7 +18,6 @@ import {
 } from './schema';
 import { createSafeAction } from '@/lib/create-safe-action';
 import { generateHandle } from '@/lib/functions';
-import { redirect } from 'next/navigation';
 
 const createQuestionHandler = async (
   data: InputTypeCreate
@@ -43,8 +42,7 @@ const createQuestionHandler = async (
     });
 
     if (existingQuestion) {
-      // Modify the slug if it already exists (e.g., append a random string or number)
-      slug += '-' + Math.random().toString(36).substr(2, 5);
+      slug += '-' + Math.random().toString(36).substring(2, 5);
     }
 
     // Create question with the slug
@@ -157,7 +155,7 @@ const deleteQuestionHandler = async (
   }
 
   try {
-    await prisma.$transaction(async (prisma) => {
+    await prisma.$transaction(async prisma => {
       // Function to recursively delete answers
       const deleteAnswers = async (questionId: string) => {
         const answers = await prisma.answer.findMany({

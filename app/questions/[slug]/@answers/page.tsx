@@ -22,10 +22,10 @@ const organizeAnswers = (
   parentId: string | null = null
 ): Answer[] => {
   return answers
-    .filter((answer) => {
+    .filter(answer => {
       return answer.parentId === parentId;
     })
-    .map((answer) => {
+    .map(answer => {
       const organizedResponses = organizeAnswers(answers, answer.id);
 
       return {
@@ -124,7 +124,7 @@ const SingleAnswerPage = async ({
         </DropdownMenu>
       </div>
       <div className=" flex items-center justify-center  px-3 flex-col gap-2 my-3">
-        {answers.map((post) => (
+        {answers.map(post => (
           <PostCard
             key={post.id}
             questionId={post.questionId}

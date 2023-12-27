@@ -32,9 +32,10 @@ interface IProps {
   enableLink?: boolean;
   isAnswer?: boolean;
   questionId: string;
+  votes?: any[];
 }
 const isExtendedQuestion = (
-  post: ExtendedQuestion | Answer
+  post: ExtendedQuestion | Answer,
 ): post is ExtendedQuestion => {
   return (post as ExtendedQuestion).slug !== undefined;
 };
@@ -45,6 +46,7 @@ const PostCard: React.FC<IProps> = ({
   reply = false,
   enableLink = false,
   isAnswer = true,
+  votes,
 }) => {
   const [markDownValue, setMarkDownValue] = useState('');
   const [enableReply, setEnableReply] = useState(false);
@@ -77,7 +79,7 @@ const PostCard: React.FC<IProps> = ({
 
   const internalDetails = () => {
     return (
-      <div className='w-full'>
+      <div className="w-full">
         <div className="flex items-center justify-start gap-3 my-2">
           <Avatar className="cursor-pointer">
             <AvatarImage
@@ -169,6 +171,7 @@ const PostCard: React.FC<IProps> = ({
           questionId={isAnswer ? undefined : post.id}
           answerId={isAnswer ? post.id : undefined}
           key={post.id}
+          votesArr={votes || []}
         />
 
         <div className="flex flex-1 flex-row items-start justify-between w-full">

@@ -30,7 +30,7 @@ const createAnswerHandler = async (
   const { content, questionId, parentId } = data;
 
   try {
-    const result = await prisma.$transaction(async (prisma) => {
+    const result = await prisma.$transaction(async prisma => {
       const answerData = {
         content,
         questionId,
@@ -130,7 +130,7 @@ const deleteAnswerHandler = async (
   }
 
   try {
-    await prisma.$transaction(async (prisma) => {
+    await prisma.$transaction(async prisma => {
       // Function to recursively delete answers and decrement totalReplies
       const deleteNestedAnswers = async (parentId: string) => {
         const childAnswers = await prisma.answer.findMany({
