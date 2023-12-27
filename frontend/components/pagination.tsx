@@ -25,7 +25,7 @@ const Pagination: React.FC<IPagination> = ({ dataLength = 1 }) => {
             limit: paginationQ.pageSize,
           })}
         >
-          <span className="material-icons text-gray-500 w-4 h-4 dark:text-gray-400">
+          <span className="material-icons flex items-center justify-center text-gray-500 w-4 h-4 dark:text-gray-400">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -56,7 +56,7 @@ const Pagination: React.FC<IPagination> = ({ dataLength = 1 }) => {
             limit: paginationQ.pageSize,
           })}
         >
-          <span className="material-icons text-gray-500 w-4 h-4 dark:text-gray-400">
+          <span className="material-icons flex items-center justify-center text-gray-500 w-4 h-4 dark:text-gray-400">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

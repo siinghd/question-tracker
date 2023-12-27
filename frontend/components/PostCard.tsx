@@ -165,7 +165,7 @@ const PostCard: React.FC<IProps> = ({
     );
   };
   return (
-    <Card className="w-full  bg-background ">
+    <Card className="w-full bg-background">
       <CardBody className="flex gap-5 items-start justify-between">
         <VoteForm
           votes={post.totalVotes}
@@ -207,7 +207,7 @@ const PostCard: React.FC<IProps> = ({
         </div>
       </CardBody>
       {isAnswer && !isExtendedQuestion(post) && (
-        <CardFooter className="m-0 w-full flex-col">
+        <CardFooter className="m-0 w-full flex flex-col gap-2">
           {post.responses &&
             post?.responses.length > 0 &&
             post?.responses.map((post: Answer) => (
