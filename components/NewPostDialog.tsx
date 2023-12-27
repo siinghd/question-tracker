@@ -55,7 +55,7 @@ export const NewPostDialog = () => {
       if (!fieldErrors?.content && !fieldErrors?.title && !fieldErrors?.tags) {
         setValue('');
         router.push(
-          getUpdatedUrl(path + '/', paramsObject, { newPost: 'close' })
+          getUpdatedUrl(path + '/', paramsObject, { newPost: 'close' }),
         );
       }
     },
@@ -70,7 +70,7 @@ export const NewPostDialog = () => {
     }
   };
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const title = formData.get('title');
 

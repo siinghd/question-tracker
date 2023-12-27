@@ -1,49 +1,49 @@
-import { QueryParams } from "@/types";
+import { QueryParams } from '@/types';
 
 export const getUpdatedUrl = (
-	path: string,
-	prevQueryParams: QueryParams,
-	newQueryParams: QueryParams
+  path: string,
+  prevQueryParams: QueryParams,
+  newQueryParams: QueryParams
 ) => {
-	const updatedQuery = { ...prevQueryParams, ...newQueryParams };
-	const queryString = new URLSearchParams(
-		updatedQuery as Record<string, string>
-	).toString();
-	return `${path}?${queryString}`;
+  const updatedQuery = { ...prevQueryParams, ...newQueryParams };
+  const queryString = new URLSearchParams(
+    updatedQuery as Record<string, string>
+  ).toString();
+  return `${path}?${queryString}`;
 };
 
 export const searchParamsToObject = (
-	searchParams: URLSearchParams
+  searchParams: URLSearchParams
 ): Record<string, string | string[]> => {
-	const obj: Record<string, string | string[]> = {};
-	searchParams.forEach((value, key) => {
-		// If the key already exists, transform into an array or push to existing array
-		if (obj.hasOwnProperty(key)) {
-			if (Array.isArray(obj[key])) {
-				(obj[key] as string[]).push(value);
-			} else {
-				obj[key] = [obj[key] as string, value];
-			}
-		} else {
-			// Add the key-value pair
-			obj[key] = value;
-		}
-	});
-	return obj;
+  const obj: Record<string, string | string[]> = {};
+  searchParams.forEach((value, key) => {
+    // If the key already exists, transform into an array or push to existing array
+    if (obj.hasOwnProperty(key)) {
+      if (Array.isArray(obj[key])) {
+        (obj[key] as string[]).push(value);
+      } else {
+        obj[key] = [obj[key] as string, value];
+      }
+    } else {
+      // Add the key-value pair
+      obj[key] = value;
+    }
+  });
+  return obj;
 };
 
 export const paginationData = (searchParams: QueryParams) => {
-	const pageNumber = parseInt((searchParams.page || 1).toString());
-	const pageSize = Math.min(
-		parseInt((searchParams.limit || 10).toString()) || 100
-	);
-	const skip = (pageNumber - 1) * pageSize;
+  const pageNumber = parseInt((searchParams.page || 1).toString());
+  const pageSize = Math.min(
+    parseInt((searchParams.limit || 30).toString()) || 100
+  );
+  const skip = (pageNumber - 1) * pageSize;
 
-	return {
-		pageNumber,
-		pageSize,
-		skip,
-	};
+  return {
+    pageNumber,
+    pageSize,
+    skip,
+  };
 };
 
 export const generateHandle = (title: string): string => {
@@ -88,7 +88,7 @@ export const generateHandle = (title: string): string => {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
     // eslint-disable-next-line no-control-regex
-    .replace(/[^\x00-\x7F]/g, (char) => latinToEnglishMap[char] || '');
+    .replace(/[^\x00-\x7F]/g, char => latinToEnglishMap[char] || '');
 
   return handle;
 };
