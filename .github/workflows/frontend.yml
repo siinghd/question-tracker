@@ -4,7 +4,7 @@ env:
   PROJECT_NAME: qat
   PROJECT_TYPE: frontend
   WORKING_DIRECTORY: frontend
-  CURR_WORKING_DIRECTORY: ./
+  CURR_WORKING_DIRECTORY: ./frontend
   DEV_APP_PORT: 4000
   DEV_DOMAIN_NAME: qat-dev.hsingh.site
   PROD_APP_PORT: 4001
@@ -26,7 +26,7 @@ on:
     branches:
       - '*'
     # paths:
-    #   - '.'
+    #   - './frontend'
   workflow_dispatch: {}
 
 jobs:
@@ -78,6 +78,7 @@ jobs:
           echo "APP_PORT=${{ env.DEV_APP_PORT }}" >> $GITHUB_ENV
           echo "DOMAIN_NAME=${{ env.DEV_DOMAIN_NAME }}" >> $GITHUB_ENV
           echo "DOTENV_KEY=${{ env.DEV_DOTENV_KEY }}" >> $GITHUB_ENV
+          echo "${{ secrets.DEV_ENV}}" > .env
 
       - name: Set environment variables for Prod
         if: github.ref != 'refs/heads/dev'
@@ -89,7 +90,7 @@ jobs:
           echo "APP_PORT=${{ env.PROD_APP_PORT }}" >> $GITHUB_ENV
           echo "DOMAIN_NAME=${{ env.PROD_DOMAIN_NAME }}" >> $GITHUB_ENV
           echo "DOTENV_KEY=${{ env.PROD_DOTENV_KEY }}" >> $GITHUB_ENV
-
+          echo "${{ secrets.PROD_ENV}}" > .env
       - name: SSH and Prepare Server
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -98,8 +99,10 @@ jobs:
           username: ${{ env.SERVER_USER }}
           password: ${{ env.SERVER_PASSWORD }}
           script: |
-            rm -rf /home/${{ env.SERVER_USER }}/sites/${{ env.PROJECT_NAME }}/${{ env.ENVIRONMENT }}/${{ env.WORKING_DIRECTORY }}
-            mkdir -p /home/${{ env.SERVER_USER }}/sites/${{ env.PROJECT_NAME }}/${{ env.ENVIRONMENT }}/${{ env.WORKING_DIRECTORY }}
+            SITE_PATH="/home/${{ env.SERVER_USER }}/sites/${{ env.PROJECT_NAME }}/${{ env.ENVIRONMENT }}/${{ env.WORKING_DIRECTORY }}"
+            rm -rf $SITE_PATH
+            mkdir -p $SITE_PATH
+
       - name: SCP to Server
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -107,7 +110,7 @@ jobs:
           username: ${{ env.SERVER_USER }}
           password: ${{ env.SERVER_PASSWORD }}
           source: ${{ env.CURR_WORKING_DIRECTORY }}
-          target: /home/${{ env.SERVER_USER }}/sites/${{ env.PROJECT_NAME }}/${{ env.ENVIRONMENT }}/${{ env.WORKING_DIRECTORY }}
+          target: /home/${{ env.SERVER_USER }}/sites/${{ env.PROJECT_NAME }}/${{ env.ENVIRONMENT }}
       - name: Deploy
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -116,5 +119,13 @@ jobs:
           username: ${{ env.SERVER_USER }}
           password: ${{ env.SERVER_PASSWORD }}
           script: |
-            ansible-playbook /home/${{ env.SERVER_USER }}/ansible/start_script_pnpm.ansible.yml -e "dotenv_key=${{env.DOTENV_KEY}} env_environment=${{ env.ENVIRONMENT }} project_name=${{ env.PROJECT_NAME }} project_type=${{ env.PROJECT_TYPE }} app_port=${{ env.APP_PORT }} working_directory=${{ env.WORKING_DIRECTORY }}"
+
+            SITE_PATH="/home/${{ env.SERVER_USER }}/sites/${{ env.PROJECT_NAME }}/${{ env.ENVIRONMENT }}/${{ env.WORKING_DIRECTORY }}"
+            cd $SITE_PATH
+            if [ "${{ env.ENVIRONMENT }}" = "dev" ]; then
+              pnpm run start-pm2-dev
+            else
+              pnpm run start-pm2-prod
+            fi
+
             ansible-playbook /home/${{ env.SERVER_USER }}/ansible/set_nginx_conf.ansible.yml -e "ansible_become_pass=${{ env.SERVER_PASSWORD }} env_type=${{ env.ENVIRONMENT }} project_name=${{ env.PROJECT_NAME }} project_type=${{ env.PROJECT_TYPE }} app_port=${{ env.APP_PORT }} working_directory=${{ env.WORKING_DIRECTORY }} server_name=${{ env.DOMAIN_NAME }} enable_rate_limiting=${{env.ENABLE_RATE_LIMITING}} rate_burst=${{env.RATE_BURST}} enable_cache=${{env.ENABLE_CACHE}} enable_cache_control=${{env.ENABLE_CACHE_CONTROL}}"
