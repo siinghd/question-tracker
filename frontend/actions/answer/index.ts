@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/frontend/auth';
+import { auth } from '@/auth';
 import {
   DeleteTypeAnswer,
   InputTypeCreateAnswer,
@@ -9,7 +9,7 @@ import {
   ReturnTypeDeleteAnswer,
   ReturnTypeUpdateAnswer,
 } from './types';
-import prisma from '@/frontend/PrismaClientSingleton';
+import prisma from '@/PrismaClientSingleton';
 import { createSafeAction } from '@/lib/create-safe-action';
 import {
   AnswerDeleteSchema,
@@ -17,7 +17,7 @@ import {
   AnswerUpdateSchema,
 } from './schema';
 import { revalidatePath } from 'next/cache';
-import { Roles } from '@/frontend/types';
+import { Roles } from '@/types';
 
 const createAnswerHandler = async (
   data: InputTypeCreateAnswer

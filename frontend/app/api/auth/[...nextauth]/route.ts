@@ -1,4 +1,4 @@
-import { handlers } from '@/frontend/auth';
+import { handlers } from '@/auth';
 import type { NextRequest } from 'next/server';
 
 const { GET: AuthGET, POST } = handlers;

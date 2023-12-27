@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/frontend/auth';
+import { auth } from '@/auth';
 import {
   InputTypeCreate,
   InputTypeDelete,
@@ -9,8 +9,8 @@ import {
   ReturnTypeDelete,
   ReturnTypeUpdate,
 } from './types';
-import { Roles } from '@/frontend/types';
-import prisma from '@/frontend/PrismaClientSingleton';
+import { Roles } from '@/types';
+import prisma from '@/PrismaClientSingleton';
 import { createSafeAction } from '@/lib/create-safe-action';
 import {
   LiveChatSessionDeleteSchema,

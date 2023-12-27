@@ -1,11 +1,11 @@
-import { auth } from '@/frontend/auth';
+import { auth } from '@/auth';
 import { NewPostDialog } from '@/components/NewPostDialog';
-import { QueryParams, TabType } from '@/frontend/types';
+import { QueryParams, TabType } from '@/types';
 import { getUpdatedUrl, paginationData } from '@/lib/functions';
 import Image from 'next/image';
 import Link from 'next/link';
 import dayjs from 'dayjs';
-import prisma from '@/frontend/PrismaClientSingleton';
+import prisma from '@/PrismaClientSingleton';
 import Pagination from '@/components/pagination';
 import { ExtendedQuestion, QuestionQuery } from '@/actions/question/types';
 import { Question } from '@prisma/client';
@@ -121,7 +121,7 @@ export default async function Home({
 }) {
   const session = await auth();
   const sessionId = session?.user.id;
-  console.log(session)
+
   let response;
   const tabType = searchParams.tabType || TabType.mu;
   if (

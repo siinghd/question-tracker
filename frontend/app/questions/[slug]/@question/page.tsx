@@ -1,7 +1,7 @@
-import prisma from '@/frontend/PrismaClientSingleton';
-import { auth } from '@/frontend/auth';
+import prisma from '@/PrismaClientSingleton';
+import { auth } from '@/auth';
 import PostCard from '@/components/PostCard';
-import { QueryParams } from '@/frontend/types';
+import { QueryParams } from '@/types';
 
 import React from 'react';
 

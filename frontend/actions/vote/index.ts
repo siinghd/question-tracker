@@ -1,9 +1,9 @@
 'use server';
 
-import { auth } from '@/frontend/auth';
+import { auth } from '@/auth';
 import { ReturnTypeVoteUpdate, VoteUpdateType } from './types';
 import { revalidatePath } from 'next/cache';
-import prisma from '@/frontend/PrismaClientSingleton';
+import prisma from '@/PrismaClientSingleton';
 import { VoteSchema } from './schema';
 import { createSafeAction } from '@/lib/create-safe-action';
 
