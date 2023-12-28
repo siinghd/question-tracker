@@ -50,7 +50,7 @@ const SingleQuestionPage = async ({
   });
 
   return (
-    <div className="md:mx-[15%]">
+    <div className="md:mx-[15%] mt-5">
       <div className="flex items-center justify-center  px-3">
         {question && (
           <PostCard

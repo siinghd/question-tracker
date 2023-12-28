@@ -5,10 +5,12 @@ import { SheetTrigger, SheetContent, Sheet } from '@/components/ui/sheet';
 import Link from 'next/link';
 import ThemeSwitch from './ThemeSwitch';
 import CLogoutButton from './CLogout';
+import { auth } from '@/auth';
 
-export default function NavBar() {
+export default async function NavBar() {
+  const session = await auth();
   return (
-    <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6 border-b-2 border-b-black dark:border-b-white ">
+    <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6 border-b-2 ">
       <Sheet>
         <SheetTrigger asChild>
           <Button className="lg:hidden" size="icon" variant="outline">
@@ -52,6 +54,7 @@ export default function NavBar() {
         </Link>
       </nav>
       <div className="ml-auto flex items-center gap-3">
+        {session && <div>Role: {session?.user.role}</div>}
         <ThemeSwitch />
         <CLogoutButton />
       </div>
