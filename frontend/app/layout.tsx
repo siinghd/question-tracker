@@ -5,6 +5,7 @@ import Providers from '../components/Providers';
 import ThemeSwitch from '../components/ThemeSwitch';
 import CLogoutButton from '../components/CLogout';
 import { Toaster } from 'sonner';
+import NavBar from '@/components/navbar';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,10 +23,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <Providers>
+          <NavBar />
           <Toaster position="top-right" richColors />
-          <CLogoutButton />
-
-          <ThemeSwitch />
 
           {children}
         </Providers>

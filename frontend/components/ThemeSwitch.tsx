@@ -5,7 +5,7 @@ const ThemeSwitch = () => {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="fixed top-4 right-4 z-50">
+    <div className="">
       <svg
         onClick={() => {
           setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -14,7 +14,7 @@ const ThemeSwitch = () => {
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
-        stroke={theme === 'light' ? 'yellow' : 'currentColor'}
+        stroke={theme === 'light' ? 'black' : 'yellow'}
         className="w-6 h-6 cursor-pointer"
       >
         <path

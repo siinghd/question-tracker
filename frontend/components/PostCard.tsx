@@ -120,7 +120,7 @@ const PostCard: React.FC<IProps> = ({
           />
         )}
 
-        <div className="flex gap-3 p-3">
+        <div className="flex gap-3p-3">
           {reply && (
             <TextSnippet
               className="flex items-center gap-2 cursor-pointer"
@@ -165,7 +165,7 @@ const PostCard: React.FC<IProps> = ({
     );
   };
   return (
-    <Card className="w-full bg-background">
+    <Card className="w-full bg-background ">
       <CardBody className="flex gap-5 items-start justify-between">
         <VoteForm
           votes={(post.upVotes || 0) - (post.downVotes || 0)} // todo fix
@@ -207,7 +207,7 @@ const PostCard: React.FC<IProps> = ({
         </div>
       </CardBody>
       {isAnswer && !isExtendedQuestion(post) && (
-        <CardFooter className="m-0 w-full flex flex-col gap-2">
+        <CardFooter className="m-0 w-full flex flex-col gap-2 p-1 ">
           {post.responses &&
             post?.responses.length > 0 &&
             post?.responses.map((post: Answer) => (

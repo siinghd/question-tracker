@@ -5,7 +5,7 @@ const CLogoutButton = async () => {
 
   return (
     session !== null && (
-      <div className="fixed top-4 right-12 z-50">
+      <div className="flex items-center">
         <form
           action={async () => {
             'use server';
@@ -13,7 +13,7 @@ const CLogoutButton = async () => {
               redirectTo: '/login',
             });
           }}
-          className="w-full"
+          className="w-full flex"
         >
           <button type="submit">
             <svg

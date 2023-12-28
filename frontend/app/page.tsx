@@ -159,11 +159,28 @@ export default async function Home({
 
   return (
     <>
-      <NewPostDialog />
-      <div className="container mx-auto md:p-10 ">
-        <div className="flex flex-col items-center p-4 dark:text-white">
-          <p>Coming soon: Live session with questions and more</p>
-          {/* <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
+      <div className="  h-screen md:p-8 transition-colors duration-500">
+        <div className="flex justify-between items-center mb-6 px-8 pt-3">
+          <div className="text-3xl dark:text-white  text-black transition-colors duration-500">
+            <h1 className="text-black  dark:text-white">Questions</h1>
+          </div>
+          <Link
+            className="bg-black text-white dark:bg-white dark:text-black light:text-black transition-colors duration-500 sticky p-3 rounded-md"
+            href={getUpdatedUrl('/', searchParams, {
+              newPost:
+                searchParams.newPost === 'close' || !searchParams.newPost
+                  ? 'open'
+                  : 'close',
+            })}
+          >
+            New Question
+          </Link>
+        </div>
+        <NewPostDialog />
+        <div className=" mx-auto md:p-10 ">
+          <div className="flex flex-col items-center p-4 dark:text-white">
+            <p>Coming soon: Live session with questions and more</p>
+            {/* <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
             <Image
               alt="User profile"
               className="w-24 h-24 rounded-full"
@@ -176,90 +193,81 @@ export default async function Home({
               width="96"
             />
           </div> */}
-          <div className="w-full my-4 border-b dark:border-gray-600 flex justify-center space-x-4">
-            <Link
-              className="py-2"
-              href={getUpdatedUrl('/', searchParams, {
-                tabType: TabType.mq,
-              })}
-            >
-              Your questions
-            </Link>
+            <div className="w-full my-4 border-b dark:border-gray-600 flex justify-center space-x-4"></div>
+            <div className="flex ">
+              <Search />
+              <div className="px-3">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="shrink-0" variant="outline">
+                      <ArrowUpDownIcon className="w-4 h-4 mr-2" />
+                      Sort by
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-[200px]">
+                    <DropdownMenuRadioGroup value={tabType}>
+                      <Link
+                        className="py-2"
+                        href={getUpdatedUrl('/', searchParams, {
+                          tabType: TabType.mq,
+                        })}
+                      >
+                        <DropdownMenuRadioItem value={TabType.mq}>
+                          Your questions
+                        </DropdownMenuRadioItem>
+                      </Link>
 
-            <Link
-              className="py-2"
-              href={getUpdatedUrl('/', searchParams, {
-                newPost:
-                  searchParams.newPost === 'close' || !searchParams.newPost
-                    ? 'open'
-                    : 'close',
-              })}
-            >
-              ASK A QUESTION (AAK)
-            </Link>
-          </div>
-          <div className="flex ">
-            <Search />
-            <div className="px-3">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button className="shrink-0" variant="outline">
-                    <ArrowUpDownIcon className="w-4 h-4 mr-2" />
-                    Sort by
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[200px]">
-                  <DropdownMenuRadioGroup value={tabType}>
-                    <Link
-                      href={getUpdatedUrl('/', searchParams, {
-                        tabType: TabType.mu,
-                      })}
-                    >
-                      <DropdownMenuRadioItem value={TabType.mu}>
-                        Most Voted
-                      </DropdownMenuRadioItem>
-                    </Link>
-                    <Link
-                      href={getUpdatedUrl(`/`, searchParams, {
-                        tabType: TabType.md,
-                      })}
-                    >
-                      <DropdownMenuRadioItem value={TabType.md}>
-                        Most Down Voted
-                      </DropdownMenuRadioItem>
-                    </Link>
-                    <Link
-                      href={getUpdatedUrl('/', searchParams, {
-                        tabType: TabType.mr,
-                      })}
-                    >
-                      <DropdownMenuRadioItem value={TabType.mr}>
-                        Most Recent
-                      </DropdownMenuRadioItem>
-                    </Link>
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                      <Link
+                        href={getUpdatedUrl('/', searchParams, {
+                          tabType: TabType.mu,
+                        })}
+                      >
+                        <DropdownMenuRadioItem value={TabType.mu}>
+                          Most Voted
+                        </DropdownMenuRadioItem>
+                      </Link>
+                      <Link
+                        href={getUpdatedUrl(`/`, searchParams, {
+                          tabType: TabType.md,
+                        })}
+                      >
+                        <DropdownMenuRadioItem value={TabType.md}>
+                          Most Down Voted
+                        </DropdownMenuRadioItem>
+                      </Link>
+                      <Link
+                        href={getUpdatedUrl('/', searchParams, {
+                          tabType: TabType.mr,
+                        })}
+                      >
+                        <DropdownMenuRadioItem value={TabType.mr}>
+                          Most Recent
+                        </DropdownMenuRadioItem>
+                      </Link>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+            <div className="w-full m-auto">
+              <div className="space-y-4 w-full">
+                {response?.data?.map((post, index) => (
+                  <PostCard
+                    post={post}
+                    sessionUser={session?.user}
+                    key={post.id}
+                    isAnswer={false}
+                    questionId={post.id}
+                    enableLink={true}
+                    reply={false}
+                    votes={post.votes}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-          <div className="w-full m-auto">
-            <div className="space-y-4 w-full">
-              {response?.data?.map((post, index) => (
-                <PostCard
-                  post={post}
-                  sessionUser={session?.user}
-                  key={post.id}
-                  isAnswer={false}
-                  questionId={post.id}
-                  enableLink={true}
-                  reply={false}
-                  votes={post.votes}
-                />
-              ))}
-            </div>
-          </div>
+          <Pagination dataLength={response?.data?.length || 0} />
         </div>
-        <Pagination dataLength={response?.data?.length || 0} />
       </div>
     </>
   );
