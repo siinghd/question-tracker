@@ -61,7 +61,8 @@ const getQuestionsWithQuery = async (
     select: {
       id: true,
       title: true,
-      totalVotes: true,
+      upVotes: true,
+      downVotes: true,
       totalAnswers: true,
       tags: true,
       slug: true,
@@ -130,13 +131,19 @@ export default async function Home({
     searchParams.tabType === TabType.mu
   ) {
     response = await getQuestionsWithQuery(
-      { orderBy: { totalVotes: 'desc' } },
+      { orderBy: { upVotes: 'desc' } },
       searchParams,
       sessionId!
     );
   } else if (searchParams.tabType === TabType.mr) {
     response = await getQuestionsWithQuery(
       { orderBy: { createdAt: 'desc' } },
+      searchParams,
+      sessionId!
+    );
+  } else if (searchParams.tabType === TabType.md) {
+    response = await getQuestionsWithQuery(
+      { orderBy: { downVotes: 'desc' } },
       searchParams,
       sessionId!
     );
@@ -210,6 +217,15 @@ export default async function Home({
                     >
                       <DropdownMenuRadioItem value={TabType.mu}>
                         Most Voted
+                      </DropdownMenuRadioItem>
+                    </Link>
+                    <Link
+                      href={getUpdatedUrl(`/`, searchParams, {
+                        tabType: TabType.md,
+                      })}
+                    >
+                      <DropdownMenuRadioItem value={TabType.md}>
+                        Most Down Voted
                       </DropdownMenuRadioItem>
                     </Link>
                     <Link

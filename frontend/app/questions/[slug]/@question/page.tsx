@@ -21,7 +21,8 @@ const SingleQuestionPage = async ({
     select: {
       id: true,
       title: true,
-      totalVotes: true,
+      upVotes: true,
+      downVotes: true,
       totalAnswers: true,
       tags: true,
       slug: true,

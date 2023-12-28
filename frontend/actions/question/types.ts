@@ -22,14 +22,16 @@ export interface QuestionQuery {
   take?: number;
   skip?: number;
   orderBy?: {
-    totalVotes?: 'asc' | 'desc';
+    upVotes?: 'asc' | 'desc';
+    downVotes?: 'asc' | 'desc';
     createdAt?: 'asc' | 'desc';
     // Add other fields as needed
   };
   select?: {
     id: boolean;
     title: boolean;
-    totalVotes: boolean;
+    upVotes: boolean;
+    downVotes: boolean;
     slug: boolean;
     tags: boolean;
     totalAnswers: boolean;
@@ -83,7 +85,8 @@ export interface ExtendedQuestion {
   slug: string;
   createdAt: Date;
   authorId: string;
-  totalVotes: number;
+  upVotes: number;
+  downVotes: number;
   totalAnswers: number;
   tags: string[];
   updatedAt: Date;

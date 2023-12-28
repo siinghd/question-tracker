@@ -168,7 +168,7 @@ const PostCard: React.FC<IProps> = ({
     <Card className="w-full bg-background">
       <CardBody className="flex gap-5 items-start justify-between">
         <VoteForm
-          votes={post.totalVotes}
+          votes={(post.upVotes || 0) - (post.downVotes || 0)} // todo fix
           questionId={isAnswer ? undefined : post.id}
           answerId={isAnswer ? post.id : undefined}
           key={post.id}

@@ -24,7 +24,9 @@ const VoteForm: React.FC<IVoteFormProps> = ({
 }) => {
   const { execute, fieldErrors, setFieldErrors } = useAction(updateVote, {
     onSuccess: (data) => {
-      toast.success(`Question has "${data?.totalVotes}" votes Now`);
+      toast.success(
+        `Question has "${data?.upVotes}" up votes and "${data?.downVotes}" down votes Now`,
+      );
     },
     onError: (error) => {
       toast.error(error);

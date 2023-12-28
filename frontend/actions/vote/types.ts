@@ -6,5 +6,5 @@ import { VoteSchema } from './schema';
 export type VoteUpdateType = z.infer<typeof VoteSchema>;
 export type ReturnTypeVoteUpdate = ActionState<
   VoteUpdateType,
-  { totalVotes: number } | null
+  { upVotes: number; downVotes: number } | null
 >;

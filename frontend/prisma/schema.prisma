@@ -72,7 +72,8 @@ model Question {
   createdAt     DateTime    @default(now())
   author        User        @relation(fields: [authorId], references: [id])
   authorId      String      @db.ObjectId
-  totalVotes    Int         @default(0)
+  upVotes    Int         @default(0)
+  downVotes    Int         @default(0)
   totalAnswers  Int         @default(0)
   answers       Answer[]
   votes         Vote[]
@@ -90,7 +91,8 @@ model Answer {
   author        User        @relation(fields: [authorId], references: [id])
   authorId      String      @db.ObjectId
   votes         Vote[]
-  totalVotes    Int         @default(0)
+  upVotes    Int         @default(0)
+  downVotes    Int         @default(0)
   totalAnswers  Int         @default(0) 
   updatedAt     DateTime    @updatedAt
   parentId      String?     @db.ObjectId
@@ -136,6 +138,8 @@ model Message {
   authorId      String      @db.ObjectId
   liveChatSession   LiveChatSession @relation(fields: [sessionId], references: [id])
   sessionId     String      @db.ObjectId
+  upVotes    Int         @default(0)
+  downVotes    Int         @default(0)
   votes         MessageVote[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt

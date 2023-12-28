@@ -39,12 +39,14 @@ const handleVote = async (
     await prisma.$transaction(async prisma => {
       const existingVote = await prisma.vote.findFirst({
         where: {
-          userId: session.user.id!,
+          userId: session.user.id,
           [`${voteType}Id`]: typeId,
         },
       });
 
-      let incrementValue = value;
+      const incrementField = value === 1 ? 'upVotes' : 'downVotes';
+      const decrementField = value === 1 ? 'downVotes' : 'upVotes';
+
       if (existingVote) {
         if (existingVote.value === value) {
           throw new Error(
@@ -53,7 +55,8 @@ const handleVote = async (
             } this ${voteType}.`
           );
         }
-        incrementValue *= 2; // Adjust for reversing the previous vote and applying the new one
+
+        // User is changing their vote
         await prisma.vote.update({
           where: {
             id: existingVote.id,
@@ -62,6 +65,26 @@ const handleVote = async (
             value,
           },
         });
+        if (questionId) {
+          // Decrement the previous vote count
+          await prisma.question.update({
+            where: { id: typeId },
+            data: {
+              [decrementField]: {
+                decrement: 1,
+              },
+            },
+          });
+        } else {
+          await prisma.answer.update({
+            where: { id: typeId },
+            data: {
+              [decrementField]: {
+                decrement: 1,
+              },
+            },
+          });
+        }
       } else {
         await prisma.vote.create({
           data: {
@@ -71,23 +94,24 @@ const handleVote = async (
           },
         });
       }
-
-      // Update total votes on question or answer
-      const updateData = {
-        totalVotes: {
-          increment: incrementValue,
-        },
-      };
-
       if (questionId) {
+        // Decrement the previous vote count
         await prisma.question.update({
           where: { id: typeId },
-          data: updateData,
+          data: {
+            [incrementField]: {
+              increment: 1,
+            },
+          },
         });
       } else {
         await prisma.answer.update({
           where: { id: typeId },
-          data: updateData,
+          data: {
+            [incrementField]: {
+              increment: 1,
+            },
+          },
         });
       }
     });
@@ -96,14 +120,13 @@ const handleVote = async (
     const updatedEntity = questionId
       ? await prisma.question.findFirst({
           where: { id: typeId },
-          select: { totalVotes: true },
+          select: { upVotes: true, downVotes: true },
         })
       : await prisma.answer.findFirst({
           where: { id: typeId },
-          select: { totalVotes: true },
+          select: { upVotes: true, downVotes: true },
         });
 
-    // Revalidate paths outside the transaction
     revalidatePath(`/questions/${typeId}`);
     revalidatePath(`/`);
     return { data: updatedEntity };
@@ -114,4 +137,5 @@ const handleVote = async (
     };
   }
 };
+
 export const updateVote = createSafeAction(VoteSchema, handleVote);

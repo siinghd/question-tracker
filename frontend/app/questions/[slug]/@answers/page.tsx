@@ -39,11 +39,11 @@ const fetchAnswersForQuestion = async (
   slug: string,
   searchParams: QueryParams
 ) => {
-  // Determine the ordering criteria based on tabType
   let orderCriteria = {};
   if (searchParams.tabType === TabType.mu) {
-    // Assuming 'totalVotes' is a field that can be used for ordering
-    orderCriteria = { totalVotes: 'desc' };
+    orderCriteria = { upVotes: 'desc' };
+  } else if (searchParams.tabType === TabType.md) {
+    orderCriteria = { downVotes: 'desc' };
   } else if (searchParams.tabType === TabType.mr) {
     // Order by 'createdAt' or 'updatedAt' as per your requirement
     orderCriteria = { createdAt: 'desc' };
@@ -108,6 +108,15 @@ const SingleAnswerPage = async ({
               >
                 <DropdownMenuRadioItem value={TabType.mu}>
                   Most Voted
+                </DropdownMenuRadioItem>
+              </Link>
+              <Link
+                href={getUpdatedUrl(`/questions/${params.slug}`, searchParams, {
+                  tabType: TabType.md,
+                })}
+              >
+                <DropdownMenuRadioItem value={TabType.md}>
+                  Most Down Voted
                 </DropdownMenuRadioItem>
               </Link>
               <Link
