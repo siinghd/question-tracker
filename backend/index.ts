@@ -4,6 +4,7 @@ import { verify } from 'jsonwebtoken';
 
 import Message from './models/message';
 import LiveChatSession from './models/live-session-model';
+import { jwtVerify } from 'jose';
 
 enum SocketEvent {
   NewMessage = 'new message',
@@ -28,18 +29,18 @@ await mongoose
 
 const io = new Server();
 
-const authenticateSocket = (socket: Socket, next: any) => {
+const authenticateSocket = async (socket: Socket, next: any) => {
   const token = socket.handshake.headers['authorization'];
 
   if (token) {
-    verify(token, 'helloworld' || '', (err, decoded) => {
-      if (err) {
-        console.error('Authentication error:', err.message);
-        return next(new Error('Authentication error'));
-      }
-      socket.decoded = decoded; // Save the decoded token for future use
-      next();
-    });
+    const { payload } = await jwtVerify(
+      token,
+      new TextEncoder().encode(process.env.JWT_SECRET || '')
+    );
+
+    // Save the decoded token for future use
+    socket.decoded = payload;
+    next();
   } else {
     console.error('Authentication error: No token provided');
     next(new Error('Authentication error: No token provided'));

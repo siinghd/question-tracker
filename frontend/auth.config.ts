@@ -3,6 +3,7 @@ import type { NextAuthConfig } from 'next-auth';
 import DiscordProvider from 'next-auth/providers/discord';
 import { Session } from 'next-auth/types';
 import { Roles } from './types';
+import * as jose from 'jose';
 
 declare module 'next-auth' {
   interface Session {
@@ -12,9 +13,21 @@ declare module 'next-auth' {
       email: string;
       image: string;
       role: string;
+      externalToken: string;
     } & Omit<User, 'id'>;
   }
 }
+// Function to create JWT
+const createJwt = async (session: Session, secret: string): Promise<string> => {
+  const encoder = new TextEncoder();
+  const jwt = await new jose.SignJWT({ ...session })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('365d')
+    .sign(encoder.encode(secret));
+
+  return jwt;
+};
 
 const scopes = ['identify', 'guilds'];
 
@@ -63,6 +76,11 @@ export default {
       session.user.role = adminsUser.includes(token.providerAccountId)
         ? Roles.admin
         : Roles.user;
+      const jwtExternalToken = await createJwt(
+        session,
+        process.env.JWT_SECRET || ''
+      );
+      session.user.externalToken = jwtExternalToken;
       return session;
     },
     authorized({ auth, request: { nextUrl } }) {

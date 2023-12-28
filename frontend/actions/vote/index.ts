@@ -49,11 +49,11 @@ const handleVote = async (
 
       if (existingVote) {
         if (existingVote.value === value) {
-          throw new Error(
-            `You have already ${
+          return {
+            error: `You have already ${
               value === 1 ? 'upvoted' : 'downvoted'
-            } this ${voteType}.`
-          );
+            } this ${voteType}.`,
+          };
         }
 
         // User is changing their vote

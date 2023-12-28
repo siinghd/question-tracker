@@ -1,3 +1,6 @@
+'use client';
+
+import { createLiveChatSession } from '@/actions/liveChatSession';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,10 +13,42 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAction } from '@/hooks/useAction';
+import { toast } from 'sonner';
+import { FormSubmit } from './form/form-submit';
+import { FormErrors } from './form/form-errors';
+import { useState } from 'react';
 
 export function NewLiveChatSession() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { execute, fieldErrors, setFieldErrors } = useAction(
+    createLiveChatSession,
+    {
+      onSuccess: (data) => {
+        toast.success(
+          `Session created and it's active now, session id: ${data.id}`,
+        );
+        setDialogOpen((prev) => !prev);
+      },
+      onError: (error) => {
+        toast.error(error);
+      },
+    },
+  );
+  const handleLiveSessionCreationSubmit = (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    console.log(event.currentTarget);
+    const formData = new FormData(event.currentTarget);
+    console.log(JSON.stringify(formData));
+    const title = formData.get('title')?.toString() || '';
+    console.log(title, formData);
+    execute({ title });
+  };
+
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Start Chat</Button>
       </DialogTrigger>
@@ -21,23 +56,21 @@ export function NewLiveChatSession() {
         <DialogHeader>
           <DialogTitle>Start new live chat session</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Name
-            </Label>
-            <Input id="name" value="Pedro Duarte" className="col-span-3" />
+        <form id="livechatSession" onSubmit={handleLiveSessionCreationSubmit}>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="title" className="text-right">
+                Title
+              </Label>
+              <Input id="title" name="title" className="col-span-3" />
+            </div>
+            <FormErrors errors={fieldErrors} id="title" />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="username" className="text-right">
-              Username
-            </Label>
-            <Input id="username" value="@peduarte" className="col-span-3" />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button type="submit">Save changes</Button>
-        </DialogFooter>
+
+          <DialogFooter>
+            <FormSubmit>Create</FormSubmit>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

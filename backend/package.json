@@ -11,7 +11,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "jsonwebtoken": "^9.0.2",
+    "jose": "^5.2.0",
     "mongoose": "^8.0.3",
     "socket.io": "^4.7.2"
   }
