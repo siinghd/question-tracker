@@ -6,7 +6,14 @@ import { useAction } from '@/hooks/useAction';
 import { updateVote } from '@/actions/vote';
 import { toast } from 'sonner';
 import { VoteBlock, VoteScore } from '../voteScore';
-import { Minus, Plus } from 'lucide-react';
+import {
+  ArrowDownNarrowWideIcon,
+  ArrowUpNarrowWideIcon,
+  Minus,
+  Plus,
+  ThumbsDownIcon,
+  ThumbsUpIcon,
+} from 'lucide-react';
 import clsx from 'clsx';
 
 interface IVoteFormProps {
@@ -43,48 +50,31 @@ const VoteForm: React.FC<IVoteFormProps> = ({
   const userVoteVal = votesArr[0];
 
   return (
-    <VoteScore className="w-[100px]">
+    <div className="flex items-center space-x-1 sm:space-x-2">
       <form id="vote-up" action={handleUpVote} className="w-full">
-        <VoteBlock
-          className={clsx(
-            `rounded-t-xl cursor-pointer bg-[#F3F4F6]  duration-300 ease-in-out dark:bg-gray-900`,
-            userVoted && userVoteVal.value === 1
-              ? 'opacity-20 cursor-not-allowed'
-              : 'hover:bg-gray-200 dark:hover:bg-gray-950',
-          )}
+        <Button
+          className="text-green-600 dark:text-green-400"
+          variant="ghost"
+          disabled={userVoted && userVoteVal.value === 1}
         >
-          <button
-            className={clsx(
-              userVoted && userVoteVal.value === 1 ? 'cursor-not-allowed' : '',
-            )}
-            disabled={userVoted && userVoteVal.value === 1}
-            type="submit"
-          >
-            <Plus size={20} />
-          </button>
-        </VoteBlock>
+          <ArrowUpNarrowWideIcon className="w-4 h-4" />
+          upvote
+        </Button>
       </form>
-      <VoteBlock className=" border-t-0 border-b-0 text-sm  font-medium dark:bg-gray-900">
-        {votes}
-      </VoteBlock>
+      <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+        { votes}
+      </span>
       <form id="vote-down" action={handleDownVote} className="w-full">
-        <VoteBlock
-          className={clsx(
-            'rounded-b-xl cursor-pointer bg-[#F3F4F6 duration-300 dark:bg-gray-900 ease-in-out',
-            userVoted && userVoteVal.value === -1
-              ? 'opacity-20 cursor-not-allowed'
-              : 'hover:bg-gray-200 dark:hover:bg-gray-950',
-          )}
+        <Button
+          className="text-red-600 dark:text-red-400"
+          variant="ghost"
+          disabled={userVoted && userVoteVal.value === -1}
         >
-          <button
-            disabled={userVoted && userVoteVal.value === -1}
-            type="submit"
-          >
-            <Minus size={20} />
-          </button>
-        </VoteBlock>
+          <ArrowDownNarrowWideIcon className="w-4 h-4" />
+          downvote
+        </Button>
       </form>
-    </VoteScore>
+    </div>
   );
 };
 

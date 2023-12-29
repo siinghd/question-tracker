@@ -59,6 +59,7 @@ const SingleQuestionPage = async ({
             reply={true}
             questionId={question.id}
             isAnswer={false}
+            enableLink={false}
           />
         )}
       </div>

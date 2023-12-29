@@ -36,6 +36,7 @@ const organizeAnswers = (
 };
 
 const fetchAnswersForQuestion = async (
+  sessionId: string,
   slug: string,
   searchParams: QueryParams
 ) => {
@@ -58,6 +59,7 @@ const fetchAnswersForQuestion = async (
     where: {
       slug: slug,
     },
+
     include: {
       answers: {
         orderBy: orderCriteria,
@@ -87,7 +89,11 @@ const SingleAnswerPage = async ({
   const session = await auth();
   const tabType = searchParams.tabType || TabType.mu; //can be most upvoted or most recent
 
-  const answers = await fetchAnswersForQuestion(params.slug, searchParams);
+  const answers = await fetchAnswersForQuestion(
+    session?.user.id!,
+    params.slug,
+    searchParams
+  );
 
   return (
     <div className="pt-14 pb-14 md:mx-[15%]">
@@ -140,6 +146,7 @@ const SingleAnswerPage = async ({
             post={post}
             sessionUser={session?.user}
             reply={true}
+            // votes={post.votes}
           />
         ))}
       </div>

@@ -8,7 +8,7 @@ const VoteScore = forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={`flex flex-col items-center justify-center w-[45px] ${cn(
+    className={`flex  items-center justify-center w-[45px] ${cn(
       className,
     )}`}
     {...props}

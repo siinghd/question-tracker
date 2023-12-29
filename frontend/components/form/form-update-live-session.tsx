@@ -29,13 +29,17 @@ const FormLiveSessionUpdate: React.FC<IProps> = ({
     },
   );
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); 
+    event.preventDefault();
     execute(formData);
   };
 
   return (
     <form id={idForm} onSubmit={handleSubmit} className="w-full">
-      <Button className="text-gray-900 dark:text-white" variant="outline" type='submit'>
+      <Button
+        className="text-gray-900 dark:text-white"
+        variant="outline"
+        type="submit"
+      >
         {btnLabel}
       </Button>
     </form>
