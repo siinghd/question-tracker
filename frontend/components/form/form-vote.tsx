@@ -62,7 +62,7 @@ const VoteForm: React.FC<IVoteFormProps> = ({
         </Button>
       </form>
       <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-        { votes}
+        {votes}
       </span>
       <form id="vote-down" action={handleDownVote} className="w-full">
         <Button

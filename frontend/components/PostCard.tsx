@@ -208,13 +208,15 @@ const PostCard: React.FC<IProps> = ({
               <p className="text-sm">{post.totalAnswers}</p>
             </TextSnippet>
           </div>
-          <Button
-            className="text-blue-600 dark:text-blue-400"
-            variant="ghost"
-            onClick={() => setEnableReply((prev) => !prev)}
-          >
-            {reply && enableReply ? 'close' : 'reply'}
-          </Button>
+          {reply && (
+            <Button
+              className="text-blue-600 dark:text-blue-400"
+              variant="ghost"
+              onClick={() => setEnableReply((prev) => !prev)}
+            >
+              {reply && enableReply ? 'close' : 'reply'}
+            </Button>
+          )}
         </div>
         {isAnswer &&
           !isExtendedQuestion(post) &&
