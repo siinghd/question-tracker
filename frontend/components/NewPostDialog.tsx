@@ -1,4 +1,6 @@
 'use client';
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
 import useModal from '@/hooks/useModal';
 import Modal from './Modal';
 import MDEditor from '@uiw/react-md-editor';
@@ -12,8 +14,10 @@ import { createQuestion } from '@/actions/question';
 import { toast } from 'sonner';
 import { FormErrors } from './form/form-errors';
 import { FormInput } from './form/form-input';
+import { useTheme } from 'next-themes';
 
 export const NewPostDialog = () => {
+  const { theme } = useTheme();
   const formRef = useRef<ElementRef<'form'>>(null);
   const searchParam = useSearchParams();
   const paramsObject = searchParamsToObject(searchParam);
@@ -104,15 +108,18 @@ export const NewPostDialog = () => {
               errors={fieldErrors}
             />
             <div className="flex-grow">
-              <MDEditor
-                id="content"
-                value={value}
-                onChange={handleMarkdownChange}
-                style={{ height: '100%' }}
-                height={editorHeight - 200}
-                visibleDragbar={false}
-              />
-              <FormErrors id="content" errors={fieldErrors} />
+              <div data-color-mode={theme}>
+                <div className="wmde-markdown-var"> </div>
+                <MDEditor
+                  id="content"
+                  value={value}
+                  onChange={handleMarkdownChange}
+                  style={{ height: '100%' }}
+                  height={editorHeight - 200}
+                  visibleDragbar={false}
+                />
+                <FormErrors id="content" errors={fieldErrors} />
+              </div>
             </div>
             <FormInput
               id="tags"

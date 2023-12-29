@@ -24,17 +24,19 @@ export interface QuestionQuery {
   orderBy?: {
     upVotes?: 'asc' | 'desc';
     downVotes?: 'asc' | 'desc';
+    totalVotes?: 'asc' | 'desc';
     createdAt?: 'asc' | 'desc';
     // Add other fields as needed
   };
   select?: {
     id: boolean;
     title: boolean;
+    totalVotes?: boolean;
     upVotes: boolean;
     downVotes: boolean;
-    slug: boolean;
-    tags: boolean;
-    totalAnswers: boolean;
+    slug?: boolean;
+    tags?: boolean;
+    totalAnswers?: boolean;
     createdAt: true;
     updatedAt: true;
     author: {

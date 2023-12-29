@@ -74,6 +74,7 @@ model Question {
   authorId      String      @db.ObjectId
   upVotes    Int         @default(0)
   downVotes    Int         @default(0)
+  totalVotes    Int         @default(0)
   totalAnswers  Int         @default(0)
   answers       Answer[]
   votes         Vote[]
@@ -93,6 +94,7 @@ model Answer {
   votes         Vote[]
   upVotes    Int         @default(0)
   downVotes    Int         @default(0)
+  totalVotes    Int         @default(0)
   totalAnswers  Int         @default(0) 
   updatedAt     DateTime    @updatedAt
   parentId      String?     @db.ObjectId
@@ -140,6 +142,7 @@ model Message {
   sessionId     String      @db.ObjectId
   upVotes    Int         @default(0)
   downVotes    Int         @default(0)
+  totalVotes    Int         @default(0)
   votes         MessageVote[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt

@@ -1,5 +1,6 @@
 'use client';
-
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
 import React, { useState } from 'react';
 import { Card, CardBody, CardFooter } from './card';
 import VoteForm from './form/form-vote';
@@ -32,6 +33,7 @@ import { Button } from './ui/button';
 import { FormErrors } from './form/form-errors';
 import { Answer } from '@/prisma/types';
 import { Roles } from '@/types';
+import { useTheme } from 'next-themes';
 
 interface IProps {
   post: ExtendedQuestion | Answer;
@@ -56,6 +58,8 @@ const PostCard: React.FC<IProps> = ({
   isAnswer = true,
   votes,
 }) => {
+   const { theme } = useTheme();
+  
   const [markDownValue, setMarkDownValue] = useState('');
   const [enableReply, setEnableReply] = useState(false);
   const handleMarkdownChange = (newValue?: string) => {
@@ -150,30 +154,37 @@ const PostCard: React.FC<IProps> = ({
           </TextSnippet>
         )}
         {post.content && (
-          <MDEditor.Markdown
-            source={post.content}
-            style={{
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-              overflowWrap: 'break-word',
-              backgroundColor: 'transparent',
-            }}
-          />
+          <div data-color-mode={theme}>
+            <div className="wmde-markdown-var"> </div>
+            <MDEditor.Markdown
+              className="text-black dark:text-white"
+              source={post.content}
+              style={{
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+                backgroundColor: 'transparent',
+              }}
+            />
+          </div>
         )}
 
         {enableReply && (
           <div>
             <hr className="mt-3 mb-3" />
             <form onSubmit={handleSubmit}>
-              <MDEditor
-                id={post.id}
-                value={markDownValue}
-                onChange={handleMarkdownChange}
-              />
-              <FormErrors id="content" errors={fieldErrors} />
-              <Button type="submit" className="m-3">
-                Reply
-              </Button>
+              <div data-color-mode={theme}>
+                <div className="wmde-markdown-var"> </div>
+                <MDEditor
+                  id={post.id}
+                  value={markDownValue}
+                  onChange={handleMarkdownChange}
+                />
+                <FormErrors id="content" errors={fieldErrors} />
+                <Button type="submit" className="m-3">
+                  Reply
+                </Button>
+              </div>
             </form>
           </div>
         )}
@@ -192,7 +203,7 @@ const PostCard: React.FC<IProps> = ({
         <div className="flex justify-between w-full">
           <div className="flex">
             <VoteForm
-              votes={(post.upVotes || 0) - (post.downVotes || 0)} // todo fix
+              votes={post.upVotes || 0 /*  - (post.downVotes || 0) */} // todo fix
               questionId={isAnswer ? undefined : post.id}
               answerId={isAnswer ? post.id : undefined}
               key={post.id}
@@ -223,16 +234,16 @@ const PostCard: React.FC<IProps> = ({
           post.responses &&
           post?.responses.length > 0 &&
           post?.responses.map((post: Answer) => (
-            <>
+            <div key={post.id}>
               <hr className="mt-1 mb-1 w-3" />
               <PostCard
-                key={post.id}
+                
                 questionId={post.questionId}
                 post={post}
                 sessionUser={sessionUser}
                 reply={true}
               />
-            </>
+            </div>
           ))}
       </CardFooter>
     </Card>

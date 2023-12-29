@@ -2,32 +2,22 @@ import { auth } from '@/auth';
 import { NewPostDialog } from '@/components/NewPostDialog';
 import { QueryParams, TabType } from '@/types';
 import { getUpdatedUrl, paginationData } from '@/lib/functions';
-import Image from 'next/image';
 import Link from 'next/link';
 import dayjs from 'dayjs';
 import prisma from '@/PrismaClientSingleton';
 import Pagination from '@/components/pagination';
 import { ExtendedQuestion, QuestionQuery } from '@/actions/question/types';
-import { Question } from '@prisma/client';
 import Search from '@/components/search';
+import { ArrowUpDownIcon, } from 'lucide-react';
 
-import VoteForm from '@/components/form/form-vote';
-import { Card, CardBody } from '@/components/card';
-import { VoteBlock, VoteScore } from '@/components/voteScore';
-import { ArrowUpDownIcon, Minus, MoreHorizontal, Plus } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import TextSnippet from '@/components/textSnippet';
-import Tag from '@/components/tag';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import DeleteForm from '@/components/form/form-delete';
-import MDEditor from '@uiw/react-md-editor';
+
 import PostCard from '@/components/PostCard';
 import { Button } from '@/components/ui/button';
 
@@ -131,7 +121,7 @@ export default async function Home({
     searchParams.tabType === TabType.mu
   ) {
     response = await getQuestionsWithQuery(
-      { orderBy: { upVotes: 'desc' } },
+      { orderBy: { totalVotes: 'desc' } },
       searchParams,
       sessionId!
     );
@@ -143,7 +133,7 @@ export default async function Home({
     );
   } else if (searchParams.tabType === TabType.md) {
     response = await getQuestionsWithQuery(
-      { orderBy: { downVotes: 'desc' } },
+      { orderBy: { totalVotes: 'asc' } },
       searchParams,
       sessionId!
     );

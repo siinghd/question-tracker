@@ -42,9 +42,9 @@ const fetchAnswersForQuestion = async (
 ) => {
   let orderCriteria = {};
   if (searchParams.tabType === TabType.mu) {
-    orderCriteria = { upVotes: 'desc' };
+    orderCriteria = { totalVotes: 'desc' };
   } else if (searchParams.tabType === TabType.md) {
-    orderCriteria = { downVotes: 'desc' };
+    orderCriteria = { totalVotes: 'desc' };
   } else if (searchParams.tabType === TabType.mr) {
     // Order by 'createdAt' or 'updatedAt' as per your requirement
     orderCriteria = { createdAt: 'desc' };
