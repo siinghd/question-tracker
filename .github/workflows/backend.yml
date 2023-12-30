@@ -69,7 +69,8 @@ jobs:
           echo "DOMAIN_NAME=${{ env.DEV_DOMAIN_NAME }}" >> $GITHUB_ENV
           echo "DOTENV_KEY=${{ env.DEV_DOTENV_KEY }}" >> $GITHUB_ENV
           echo "${{ secrets.DEV_BACKEND_ENV}}" > .env
-
+          echo "${{ secrets.DEV_BACKEND_PM2_DEV}}" > pm2.dev.config.cjs
+        
       - name: Set environment variables for Prod
         if: github.ref != 'refs/heads/dev'
         run: |
