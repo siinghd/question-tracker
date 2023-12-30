@@ -116,9 +116,9 @@ jobs:
             bun build index.ts --outdir ./out --target bun
 
             if [ "${{ env.ENVIRONMENT }}" = "dev" ]; then
-              pnpm run start-pm2-dev
+              pm2 start pm2.dev.config.js
             else
-              pnpm run start-pm2-prod
+              pm2 start pm2.prod.config.js
             fi
 
             ansible-playbook /home/${{ env.SERVER_USER }}/ansible/set_nginx_conf.ansible.yml -e "ansible_become_pass=${{ env.SERVER_PASSWORD }} env_type=${{ env.ENVIRONMENT }} project_name=${{ env.PROJECT_NAME }} project_type=${{ env.PROJECT_TYPE }} app_port=${{ env.APP_PORT }} working_directory=${{ env.WORKING_DIRECTORY }} server_name=${{ env.DOMAIN_NAME }} enable_rate_limiting=${{env.ENABLE_RATE_LIMITING}} rate_burst=${{env.RATE_BURST}} enable_cache=${{env.ENABLE_CACHE}} enable_cache_control=${{env.ENABLE_CACHE_CONTROL}}"

@@ -2,7 +2,6 @@ import prisma from '@/PrismaClientSingleton';
 import { auth } from '@/auth';
 import InfiniteMessageList from '@/components/Infinite-message-list';
 
-
 import { QueryParams } from '@/types';
 import { redirect } from 'next/navigation';
 import React from 'react';
