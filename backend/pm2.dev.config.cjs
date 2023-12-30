@@ -9,7 +9,6 @@ module.exports = {
         NODE_ENV: 'production', // Set NODE_ENV for production
         PORT: 4002, // Application's port
       },
-      interpreter: '~/.bun/bin/bun',
       // exec_mode: 'cluster', // Enable cluster mode for load balancing
       // instances: 'max', // Use 'max' to utilize all available cores
       autorestart: true, // Automatically restart if the app crashes
