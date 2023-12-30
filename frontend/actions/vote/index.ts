@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/auth';
+import { auth, signOut } from '@/auth';
 import { ReturnTypeVoteUpdate, VoteUpdateType } from './types';
 import { revalidatePath } from 'next/cache';
 import prisma from '@/PrismaClientSingleton';
@@ -36,6 +36,15 @@ const handleVote = async (
   const typeId = questionId || answerId;
 
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      await signOut({
+        redirectTo: '/login',
+      });
+    }
     await prisma.$transaction(async prisma => {
       const existingVote = await prisma.vote.findFirst({
         where: {

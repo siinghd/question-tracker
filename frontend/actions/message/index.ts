@@ -16,7 +16,7 @@ import {
 } from './schema';
 import { createSafeAction } from '@/lib/create-safe-action';
 import { Session } from 'next-auth/types';
-import { auth } from '@/auth';
+import { auth, signOut } from '@/auth';
 import { Roles } from '@/types';
 
 export const fetchMessagesFromDatabase = async (
@@ -56,6 +56,16 @@ const createMessageHandler = async (
   const { content, sessionId } = data;
 
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      await signOut({
+        redirectTo: '/login',
+      });
+      return { error: 'User not found.' };
+    }
     const message = await prisma.message.create({
       data: { content, authorId: session.user.id!, sessionId },
     });
@@ -77,6 +87,15 @@ const updateMessageHandler = async (
   const { messageId, content } = data;
 
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      await signOut({
+        redirectTo: '/login',
+      });
+    }
     const existingMessage = await prisma.message.findUnique({
       where: { id: messageId },
     });
@@ -114,6 +133,15 @@ const deleteMessageHandler = async (
   const { messageId } = data;
 
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      await signOut({
+        redirectTo: '/login',
+      });
+    }
     const message = await prisma.message.findUnique({
       where: { id: messageId },
     });

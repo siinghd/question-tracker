@@ -3,7 +3,7 @@
 import { createSafeAction } from '@/lib/create-safe-action';
 import { MessageVoteSchema } from './schema';
 import prisma from '@/PrismaClientSingleton';
-import { auth } from '@/auth';
+import { auth, signOut } from '@/auth';
 import { MessageVoteUpdateType, ReturnTypeMessageVoteUpdate } from './types';
 
 const handleMessageVote = async (
@@ -26,6 +26,15 @@ const handleMessageVote = async (
   }
 
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      await signOut({
+        redirectTo: '/login',
+      });
+    }
     await prisma.$transaction(async prisma => {
       const existingVote = await prisma.messageVote.findFirst({
         where: {

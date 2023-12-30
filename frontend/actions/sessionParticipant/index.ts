@@ -7,7 +7,7 @@ import {
   ReturnTypeSessionParticipantAdd,
   SessionParticipantAddType,
 } from './types';
-import { auth } from '@/auth';
+import { auth, signOut } from '@/auth';
 
 const handleAddParticipant = async (
   data: SessionParticipantAddType
@@ -23,6 +23,15 @@ const handleAddParticipant = async (
   const { userId, sessionId } = data;
 
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      await signOut({
+        redirectTo: '/login',
+      });
+    }
     const existingParticipant = await prisma.sessionParticipant.findFirst({
       where: {
         userId: userId,

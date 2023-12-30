@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/auth';
+import { auth, signOut } from '@/auth';
 import {
   InputTypeCreate,
   InputTypeDelete,
@@ -31,6 +31,15 @@ const createLiveSessionHandler = async (
   const { title } = data;
 
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      await signOut({
+        redirectTo: '/login',
+      });
+    }
     const liveSessionData = {
       title,
       date: new Date(),
@@ -61,6 +70,15 @@ const updateLiveSessionHandler = async (
   const { sessionId, title, isActive } = data;
 
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      await signOut({
+        redirectTo: '/login',
+      });
+    }
     const updatedLiveSession = await prisma.liveChatSession.update({
       where: { id: sessionId },
       data: { title, isActive },
@@ -86,6 +104,15 @@ const deleteLiveSessionHandler = async (
   const { sessionId } = data;
 
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      await signOut({
+        redirectTo: '/login',
+      });
+    }
     await prisma.liveChatSession.delete({
       where: { id: sessionId },
     });
