@@ -116,9 +116,9 @@ jobs:
             ~/.bun/bin/bun build index.ts --outdir ./out --target bun
             pm2 delete ${{ env.PROJECT_NAME }}_${{ env.ENVIRONMENT }}_${{ env.PROJECT_TYPE }}
             if [ "${{ env.ENVIRONMENT }}" = "dev" ]; then
-              pm2 start pm2.dev.config.cjs
-            else
-              pm2 start pm2.prod.config.cjs
-            fi
+                ~/.bun/bin/bun run start-pm2-dev
+              else
+                ~/.bun/bin/bun run start-pm2-prod
+              fi
 
             ansible-playbook /home/${{ env.SERVER_USER }}/ansible/set_nginx_conf.ansible.yml -e "ansible_become_pass=${{ env.SERVER_PASSWORD }} env_type=${{ env.ENVIRONMENT }} project_name=${{ env.PROJECT_NAME }} project_type=${{ env.PROJECT_TYPE }} app_port=${{ env.APP_PORT }} working_directory=${{ env.WORKING_DIRECTORY }} server_name=${{ env.DOMAIN_NAME }} enable_rate_limiting=${{env.ENABLE_RATE_LIMITING}} rate_burst=${{env.RATE_BURST}} enable_cache=${{env.ENABLE_CACHE}} enable_cache_control=${{env.ENABLE_CACHE_CONTROL}}"
