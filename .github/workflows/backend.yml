@@ -112,13 +112,13 @@ jobs:
 
             SITE_PATH="/home/${{ env.SERVER_USER }}/sites/${{ env.PROJECT_NAME }}/${{ env.ENVIRONMENT }}/${{ env.WORKING_DIRECTORY }}"
             cd $SITE_PATH
-            bun install
-            bun build index.ts --outdir ./out --target bun
+            ~/.bun/bin/bun install
+            ~/.bun/bin/bun build index.ts --outdir ./out --target bun
 
             if [ "${{ env.ENVIRONMENT }}" = "dev" ]; then
-              pm2 start pm2.dev.config.js
+              pm2 start pm2.dev.config.cjs
             else
-              pm2 start pm2.prod.config.js
+              pm2 start pm2.prod.config.cjs
             fi
 
             ansible-playbook /home/${{ env.SERVER_USER }}/ansible/set_nginx_conf.ansible.yml -e "ansible_become_pass=${{ env.SERVER_PASSWORD }} env_type=${{ env.ENVIRONMENT }} project_name=${{ env.PROJECT_NAME }} project_type=${{ env.PROJECT_TYPE }} app_port=${{ env.APP_PORT }} working_directory=${{ env.WORKING_DIRECTORY }} server_name=${{ env.DOMAIN_NAME }} enable_rate_limiting=${{env.ENABLE_RATE_LIMITING}} rate_burst=${{env.RATE_BURST}} enable_cache=${{env.ENABLE_CACHE}} enable_cache_control=${{env.ENABLE_CACHE_CONTROL}}"
