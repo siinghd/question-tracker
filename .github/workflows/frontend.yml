@@ -124,7 +124,7 @@ jobs:
             cd $SITE_PATH
             pnpm install
             pnpm run build
-            
+            pm2 delete ${{ env.PROJECT_NAME }}-${{ env.ENVIRONMENT }}-${{ env.PROJECT_TYPE }}
             if [ "${{ env.ENVIRONMENT }}" = "dev" ]; then
               pnpm run start-pm2-dev
             else
