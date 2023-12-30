@@ -68,7 +68,7 @@ jobs:
           echo "APP_PORT=${{ env.DEV_APP_PORT }}" >> $GITHUB_ENV
           echo "DOMAIN_NAME=${{ env.DEV_DOMAIN_NAME }}" >> $GITHUB_ENV
           echo "DOTENV_KEY=${{ env.DEV_DOTENV_KEY }}" >> $GITHUB_ENV
-          echo "${{ secrets.DEV_ENV}}" > .env
+          echo "${{ secrets.DEV_BACKEND_ENV}}" > .env
 
       - name: Set environment variables for Prod
         if: github.ref != 'refs/heads/dev'
@@ -80,7 +80,7 @@ jobs:
           echo "APP_PORT=${{ env.PROD_APP_PORT }}" >> $GITHUB_ENV
           echo "DOMAIN_NAME=${{ env.PROD_DOMAIN_NAME }}" >> $GITHUB_ENV
           echo "DOTENV_KEY=${{ env.PROD_DOTENV_KEY }}" >> $GITHUB_ENV
-          echo "${{ secrets.PROD_ENV}}" > .env
+          echo "${{ secrets.PROD_BACKEND_ENV}}" > .env
       - name: SSH and Prepare Server
         uses: appleboy/ssh-action@v1.0.0
         with:
