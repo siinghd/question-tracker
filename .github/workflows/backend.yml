@@ -6,9 +6,9 @@ env:
   WORKING_DIRECTORY: backend
   CURR_WORKING_DIRECTORY: ./backend
   DEV_APP_PORT: 4000
-  DEV_DOMAIN_NAME: qat-dev.hsingh.site
+  DEV_DOMAIN_NAME: api-qat-dev.hsingh.site
   PROD_APP_PORT: 4001
-  PROD_DOMAIN_NAME: qat.hsingh.site
+  PROD_DOMAIN_NAME:  api-qat.hsingh.site
   ENABLE_CACHE: false
   ENABLE_CACHE_CONTROL: false
   ENABLE_RATE_LIMITING: false
