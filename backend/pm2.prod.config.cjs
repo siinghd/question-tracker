@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'qat_prod_backend', // Name of the TypeScript application
-      script: process.env.BUN_PATH, // Script to be executed
-      args: './out/index.js', // 'start' for running in production mode
+      script: './out/index.js', // Script to be executed
+      args: '', // 'start' for running in production mode
       watch: false, // Enable watching of file changes (set to false in production)
       env: {
         NODE_ENV: 'production', // Set NODE_ENV for production
