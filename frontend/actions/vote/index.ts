@@ -41,9 +41,7 @@ const handleVote = async (
     });
 
     if (!userExists) {
-      await signOut({
-        redirectTo: '/login',
-      });
+      await signOut();
     }
     await prisma.$transaction(async prisma => {
       const existingVote = await prisma.vote.findFirst({

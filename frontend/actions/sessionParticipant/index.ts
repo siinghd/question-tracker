@@ -28,9 +28,7 @@ const handleAddParticipant = async (
     });
 
     if (!userExists) {
-      await signOut({
-        redirectTo: '/login',
-      });
+      await signOut();
     }
     const existingParticipant = await prisma.sessionParticipant.findFirst({
       where: {

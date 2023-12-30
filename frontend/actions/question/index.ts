@@ -42,9 +42,7 @@ const createQuestionHandler = async (
     });
 
     if (!userExists) {
-      await signOut({
-        redirectTo: '/login',
-      });
+      await signOut();
     }
     // Check if slug already exists
     const existingQuestion = await prisma.question.findFirst({
@@ -94,9 +92,7 @@ const updateQuestionHandler = async (
   });
 
   if (!userExists) {
-    await signOut({
-      redirectTo: '/login',
-    });
+    await signOut();
   }
   // Check if the user is the author of the question
   const existingQuestion = await prisma.question.findUnique({
@@ -164,9 +160,7 @@ const deleteQuestionHandler = async (
   });
 
   if (!userExists) {
-    await signOut({
-      redirectTo: '/login',
-    });
+    await signOut();
   }
   const { questionId } = data;
 

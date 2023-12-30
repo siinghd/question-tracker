@@ -24,7 +24,7 @@ const createLiveSessionHandler = async (
 ): Promise<ReturnTypeCreate> => {
   const session = await auth();
 
-  if (!session || (!session.user.id && session.user.role !== Roles.admin)) {
+  if (!session || !session.user.id || session.user.role !== Roles.admin) {
     return { error: 'Unauthorized or insufficient permissions' };
   }
 
@@ -36,9 +36,7 @@ const createLiveSessionHandler = async (
     });
 
     if (!userExists) {
-      await signOut({
-        redirectTo: '/login',
-      });
+      await signOut();
     }
     const liveSessionData = {
       title,
@@ -75,9 +73,7 @@ const updateLiveSessionHandler = async (
     });
 
     if (!userExists) {
-      await signOut({
-        redirectTo: '/login',
-      });
+      await signOut();
     }
     const updatedLiveSession = await prisma.liveChatSession.update({
       where: { id: sessionId },
@@ -109,9 +105,7 @@ const deleteLiveSessionHandler = async (
     });
 
     if (!userExists) {
-      await signOut({
-        redirectTo: '/login',
-      });
+      await signOut();
     }
     await prisma.liveChatSession.delete({
       where: { id: sessionId },

@@ -61,9 +61,7 @@ const createMessageHandler = async (
     });
 
     if (!userExists) {
-      await signOut({
-        redirectTo: '/login',
-      });
+      await signOut();
       return { error: 'User not found.' };
     }
     const message = await prisma.message.create({
@@ -92,9 +90,7 @@ const updateMessageHandler = async (
     });
 
     if (!userExists) {
-      await signOut({
-        redirectTo: '/login',
-      });
+      await signOut();
     }
     const existingMessage = await prisma.message.findUnique({
       where: { id: messageId },
@@ -138,9 +134,7 @@ const deleteMessageHandler = async (
     });
 
     if (!userExists) {
-      await signOut({
-        redirectTo: '/login',
-      });
+      await signOut();
     }
     const message = await prisma.message.findUnique({
       where: { id: messageId },
