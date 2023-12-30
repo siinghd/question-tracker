@@ -58,8 +58,8 @@ const PostCard: React.FC<IProps> = ({
   isAnswer = true,
   votes,
 }) => {
-   const { theme } = useTheme();
-  
+  const { theme } = useTheme();
+
   const [markDownValue, setMarkDownValue] = useState('');
   const [enableReply, setEnableReply] = useState(false);
   const handleMarkdownChange = (newValue?: string) => {
@@ -237,7 +237,6 @@ const PostCard: React.FC<IProps> = ({
             <div key={post.id}>
               <hr className="mt-1 mb-1 w-3" />
               <PostCard
-                
                 questionId={post.questionId}
                 post={post}
                 sessionUser={sessionUser}

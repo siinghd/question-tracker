@@ -7,6 +7,7 @@ import {
   MessageUpdateSchema,
 } from './schema';
 import { Delete } from '@/types';
+import { Author } from '../question/types';
 
 export type InputTypeCreateMessage = z.infer<typeof MessageInsertSchema>;
 export type ReturnTypeCreateMessage = ActionState<
@@ -25,3 +26,7 @@ export type ReturnTypeDeleteMessage = ActionState<
   InputTypeDeleteMessage,
   Delete
 >;
+
+export interface ExtentedMessage extends Message {
+  author: Author;
+}

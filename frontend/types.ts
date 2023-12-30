@@ -21,3 +21,13 @@ export interface QueryParams {
 export type Delete = {
   message: string;
 };
+export enum SocketEvent {
+  NewMessage = 'new message',
+  MessageVoteUpdate = 'message vote update',
+  MessageDeleted = 'message deleted',
+  MessageReplaced = 'message replaced',
+  Error = 'error',
+  Notification = 'notification',
+  Joined = 'joined',
+  JoinSession = 'join session',
+}

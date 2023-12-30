@@ -8,7 +8,7 @@ import prisma from '@/PrismaClientSingleton';
 import Pagination from '@/components/pagination';
 import { ExtendedQuestion, QuestionQuery } from '@/actions/question/types';
 import Search from '@/components/search';
-import { ArrowUpDownIcon, } from 'lucide-react';
+import { ArrowUpDownIcon } from 'lucide-react';
 
 import {
   DropdownMenu,

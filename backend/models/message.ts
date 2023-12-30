@@ -6,9 +6,11 @@ import { IMessageVote } from './message-vote';
 export interface IMessage extends Document {
   _id: string;
   content: string;
-  author: IUser['_id'];
-  liveChatSession: ILiveChatSession['_id'];
+  authorId: IUser['_id']
+  author: IUser
+  sessionId: ILiveChatSession['_id'];
   upVotes: number;
+  totalVotes: number;
   downVotes: number;
   createdAt: Date;
   updatedAt: Date;
@@ -18,10 +20,12 @@ export interface IMessage extends Document {
 const messageSchema: Schema = new Schema(
   {
     content: { type: String, required: true },
-    author: { type: Schema.Types.ObjectId, ref: 'User' },
-    liveChatSession: { type: Schema.Types.ObjectId, ref: 'LiveChatSession' },
+
+    authorId: { type: Schema.Types.ObjectId, ref: 'User' },
+    sessionId: { type: Schema.Types.ObjectId, ref: 'LiveChatSession' },
     createdAt: { type: Date, default: Date.now },
     upVotes: { type: Number, default: 0 },
+    totalVotes: { type: Number, default: 0 },
     downVotes: { type: Number, default: 0 },
     updatedAt: { type: Date, default: Date.now },
     votes: [{ type: Schema.Types.ObjectId, ref: 'MessageVote' }],

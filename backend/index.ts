@@ -5,6 +5,8 @@ import { verify } from 'jsonwebtoken';
 import Message from './models/message';
 import LiveChatSession from './models/live-session-model';
 import { jwtVerify } from 'jose';
+import './models/user';
+import './models/message-vote';
 
 enum SocketEvent {
   NewMessage = 'new message',
@@ -30,7 +32,7 @@ await mongoose
 const io = new Server();
 
 const authenticateSocket = async (socket: Socket, next: any) => {
-  const token = socket.handshake.headers['authorization'];
+  const token = socket.handshake.query.token as string;
 
   if (token) {
     const { payload } = await jwtVerify(
@@ -70,8 +72,6 @@ const joinSession = async (socket: Socket, sessionId: string) => {
 };
 
 io.use(authenticateSocket).on('connection', (socket: Socket) => {
-  console.log(`User connected: ${socket.id}`);
-
   socket.on(SocketEvent.JoinSession, (sessionId: string) =>
     joinSession(socket, sessionId)
   );
@@ -86,44 +86,70 @@ enum ChangeType {
 
 Message.watch().on('change', async (change) => {
   try {
-    if (change.operationType === ChangeType.Insert) {
-      const newMessage = change.fullDocument;
+    let message: any;
+    if (['insert', 'update', 'replace'].includes(change.operationType)) {
+      const messageId =
+        change.operationType === 'insert'
+          ? change.fullDocument._id
+          : change.documentKey._id;
 
-      const sessionId = newMessage.liveChatSession.toString();
-      io.to(sessionId).emit(SocketEvent.NewMessage, newMessage);
-    } else if (change.operationType === ChangeType.Update) {
-      const updatedFields = change.updateDescription?.updatedFields;
-      const messageId = change.documentKey._id.toHexString(); // Convert ObjectId to string
+      message = await Message.findById(messageId).populate('authorId').lean();
+    }
+    if (!message) {
+      return;
+    }
 
-      const updatedMessage = await Message.findById(messageId);
-      if (updatedMessage) {
-        const sessionId = updatedMessage.liveChatSession.toString();
+    message.author = message.authorId;
 
+    switch (change.operationType) {
+      case ChangeType.Insert:
+        io.to(message.sessionId.toString()).emit(
+          SocketEvent.NewMessage,
+          message
+        );
+        break;
+
+      case ChangeType.Update:
+        const updatedFields = change.updateDescription?.updatedFields;
         if (
           updatedFields &&
           ('upVotes' in updatedFields || 'downVotes' in updatedFields)
         ) {
-          io.to(sessionId).emit(SocketEvent.MessageVoteUpdate, {
-            messageId: updatedMessage._id,
-            upVotes: updatedMessage.upVotes,
-            downVotes: updatedMessage.downVotes,
-          });
+          io.to(message.sessionId.toString()).emit(
+            SocketEvent.MessageVoteUpdate,
+            {
+              messageId: message._id,
+              upVotes: message.upVotes,
+              downVotes: message.downVotes,
+            }
+          );
         }
-      }
-    } else if (change.operationType === ChangeType.Delete) {
-      const messageId = change.documentKey._id.toHexString();
-      io.emit(SocketEvent.MessageDeleted, { messageId });
-    } else if (change.operationType === ChangeType.Replace) {
-      const newMessage = change.fullDocument;
-      if (newMessage) {
-        const sessionId = newMessage.liveChatSession.toString();
-        io.to(sessionId).emit(SocketEvent.MessageReplaced, newMessage);
-      }
+        break;
+
+      case ChangeType.Delete:
+        const messageId = change.documentKey._id.toHexString();
+        io.emit(SocketEvent.MessageDeleted, { messageId });
+        break;
+
+      case ChangeType.Replace:
+        io.to(message.sessionId.toString()).emit(
+          SocketEvent.MessageReplaced,
+          message
+        );
+        break;
     }
   } catch (error) {
     console.error('Error processing change stream event:', error);
   }
 });
-
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-io.listen(PORT);
+io.listen(PORT, {
+  cors: {
+    origin: process.env.CORS_ORIGINS?.split(',') || '*', // Allow all origins
+    methods: ['GET', 'POST'],
+    allowedHeaders: '*',
+    credentials: true,
+  },
+  path: '/socket.io',
+  transports: ['websocket'],
+});

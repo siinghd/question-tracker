@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 export const MessageInsertSchema = z.object({
   content: z.string().min(1, 'Message content is required'),
-  authorId: z.string(),
   sessionId: z.string(),
 });
 

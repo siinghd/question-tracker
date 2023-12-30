@@ -18,6 +18,32 @@ import { createSafeAction } from '@/lib/create-safe-action';
 import { Session } from 'next-auth/types';
 import { auth } from '@/auth';
 import { Roles } from '@/types';
+
+export const fetchMessagesFromDatabase = async (
+  sessionId: string,
+  page: number,
+  pageSize: number
+) => {
+  const messages = await prisma.message.findMany({
+    where: {
+      sessionId: sessionId,
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+    skip: page * pageSize,
+    take: pageSize + 1, // one extra record to check if there are more records
+    include: {
+      author: true,
+    },
+  });
+
+  const hasMore = messages.length > pageSize;
+  const result = hasMore ? messages.slice(0, -1) : messages; // remove extra record
+
+  return { result, nextPage: hasMore ? page + 1 : null };
+};
+
 const createMessageHandler = async (
   data: InputTypeCreateMessage
 ): Promise<ReturnTypeCreateMessage> => {
