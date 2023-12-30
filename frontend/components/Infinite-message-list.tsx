@@ -154,12 +154,8 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
     [liveMessages],
   );
 
-  const renderMessages = (
-    filterFn: any,
-    messages: ExtentedMessage[],
-    dismissBtn = false,
-  ) =>
-    messages.filter(filterFn).map((message) => (
+  const renderMessages = (messages: ExtentedMessage[], dismissBtn = false) =>
+    messages.map((message) => (
       <div className="flex flex-col space-y-2 " key={message.id}>
         <div className="flex items-center gap-2">
           <Avatar className="cursor-pointer">
@@ -221,10 +217,7 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
           <ScrollArea className="flex-grow overflow-y-auto mb-4 ">
             <div ref={topMessageRef}>Loading more messages...</div>
             <div className="space-y-4">
-              {renderMessages(
-                (msg: ExtentedMessage) => msg.upVotes < 1,
-                filteredLowPriorityMessages,
-              )}
+              {renderMessages(filteredLowPriorityMessages)}
             </div>
             <div ref={endRef} className="scroll-mb-0" />
             <div ref={bottomMessageRef} className="scroll-mb-0 mb-4" />
@@ -253,11 +246,7 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
           </header>
           <ScrollArea className="flex-grow overflow-y-auto mb-4 ">
             <div className="space-y-4">
-              {renderMessages(
-                (msg: ExtentedMessage) => msg.upVotes > 0,
-                filteredMediumPriorityMessages,
-                true,
-              )}
+              {renderMessages(filteredMediumPriorityMessages, true)}
             </div>
           </ScrollArea>
         </main>
@@ -267,11 +256,7 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
           </header>
           <ScrollArea className="flex-grow overflow-y-auto mb-4 ">
             <div className="space-y-4">
-              {renderMessages(
-                (msg: ExtentedMessage) => msg.upVotes > 20,
-                filteredHighPriorityMessages,
-                true,
-              )}
+              {renderMessages(filteredHighPriorityMessages, true)}
             </div>
           </ScrollArea>
         </main>
