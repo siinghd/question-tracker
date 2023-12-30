@@ -1,19 +1,19 @@
-name: Build and Deploy FRONTEND
+name: Build and Deploy BACKEND
 
 env:
   PROJECT_NAME: qat
-  PROJECT_TYPE: frontend
-  WORKING_DIRECTORY: frontend
-  CURR_WORKING_DIRECTORY: ./frontend
-  DEV_APP_PORT: 4000
-  DEV_DOMAIN_NAME: qat-dev.hsingh.site
-  PROD_APP_PORT: 4001
-  PROD_DOMAIN_NAME: qat.hsingh.site
+  PROJECT_TYPE: backend
+  WORKING_DIRECTORY: backend
+  CURR_WORKING_DIRECTORY: ./backend
+  DEV_APP_PORT: 4002
+  DEV_DOMAIN_NAME: api-qat-dev.hsingh.site
+  PROD_APP_PORT: 4003
+  PROD_DOMAIN_NAME:  api-qat.hsingh.site
   ENABLE_CACHE: false
   ENABLE_CACHE_CONTROL: false
   ENABLE_RATE_LIMITING: false
-  DEV_DOTENV_KEY: ${{ secrets.DEV_FRONTEND_DOTENV_KEY }}
-  PROD_DOTENV_KEY: ${{ secrets.PROD_FRONTEND_DOTENV_KEY }}
+  DEV_DOTENV_KEY: ${{ secrets.DEV_BACKEND_DOTENV_KEY }}
+  PROD_DOTENV_KEY: ${{ secrets.PROD_BACKEND_DOTENV_KEY }}
   DEV_SERVER_USER: ${{ secrets.DEV_SERVER_USER }}
   DEV_SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
   DEV_SERVER_PASSWORD: ${{ secrets.DEV_SERVER_PASSWORD }}
@@ -26,7 +26,7 @@ on:
     branches:
       - '*'
     # paths:
-    #   - './frontend'
+    #   - './backend'
   workflow_dispatch: {}
 
 jobs:
@@ -40,21 +40,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 'latest'
-
-      - name: Cache Node.js packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-      - run: npm install -g pnpm
-      - run: pnpm install --no-frozen-lockfile
-      - run: pnpm run lint
-      - run: pnpm run build
+        uses: oven-sh/setup-bun@v1
+        with: 
+          bun-version: "latest"
+      - run: bun install
+      - run: bun build index.ts --outdir ./out --target bun
 
   deploy:
     timeout-minutes: 30
@@ -78,7 +68,7 @@ jobs:
           echo "APP_PORT=${{ env.DEV_APP_PORT }}" >> $GITHUB_ENV
           echo "DOMAIN_NAME=${{ env.DEV_DOMAIN_NAME }}" >> $GITHUB_ENV
           echo "DOTENV_KEY=${{ env.DEV_DOTENV_KEY }}" >> $GITHUB_ENV
-          echo "${{ secrets.DEV_ENV}}" > .env
+          echo "${{ secrets.DEV_BACKEND_ENV}}" > .env
 
       - name: Set environment variables for Prod
         if: github.ref != 'refs/heads/dev'
@@ -90,7 +80,7 @@ jobs:
           echo "APP_PORT=${{ env.PROD_APP_PORT }}" >> $GITHUB_ENV
           echo "DOMAIN_NAME=${{ env.PROD_DOMAIN_NAME }}" >> $GITHUB_ENV
           echo "DOTENV_KEY=${{ env.PROD_DOTENV_KEY }}" >> $GITHUB_ENV
-          echo "${{ secrets.PROD_ENV}}" > .env
+          echo "${{ secrets.PROD_BACKEND_ENV}}" > .env
       - name: SSH and Prepare Server
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -122,13 +112,13 @@ jobs:
 
             SITE_PATH="/home/${{ env.SERVER_USER }}/sites/${{ env.PROJECT_NAME }}/${{ env.ENVIRONMENT }}/${{ env.WORKING_DIRECTORY }}"
             cd $SITE_PATH
-            pnpm install
-            pnpm run build
-            
+            bun install
+            bun build index.ts --outdir ./out --target bun
+
             if [ "${{ env.ENVIRONMENT }}" = "dev" ]; then
-              pnpm run start-pm2-dev
+              pm2 start pm2.dev.config.js
             else
-              pnpm run start-pm2-prod
+              pm2 start pm2.prod.config.js
             fi
 
             ansible-playbook /home/${{ env.SERVER_USER }}/ansible/set_nginx_conf.ansible.yml -e "ansible_become_pass=${{ env.SERVER_PASSWORD }} env_type=${{ env.ENVIRONMENT }} project_name=${{ env.PROJECT_NAME }} project_type=${{ env.PROJECT_TYPE }} app_port=${{ env.APP_PORT }} working_directory=${{ env.WORKING_DIRECTORY }} server_name=${{ env.DOMAIN_NAME }} enable_rate_limiting=${{env.ENABLE_RATE_LIMITING}} rate_burst=${{env.RATE_BURST}} enable_cache=${{env.ENABLE_CACHE}} enable_cache_control=${{env.ENABLE_CACHE_CONTROL}}"

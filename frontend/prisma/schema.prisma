@@ -1,0 +1,179 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+model Account {
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String  @db.ObjectId
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+
+
+model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String?       @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  questions     Question[]
+  answers       Answer[]
+  votes         Vote[]
+  messages      Message[]     
+  messageVotes  MessageVote[] 
+  sessionParticipations SessionParticipant[]
+}
+
+model Question {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  content       String
+  slug          String      @unique
+  createdAt     DateTime    @default(now())
+  author        User        @relation(fields: [authorId], references: [id])
+  authorId      String      @db.ObjectId
+  upVotes    Int         @default(0)
+  downVotes    Int         @default(0)
+  totalVotes    Int         @default(0)
+  totalAnswers  Int         @default(0)
+  answers       Answer[]
+  votes         Vote[]
+  tags          String[]
+  updatedAt     DateTime    @updatedAt
+  @@index([authorId, tags])
+}
+
+model Answer {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  content       String
+  createdAt     DateTime    @default(now())
+  question      Question    @relation(fields: [questionId], references: [id])
+  questionId    String      @db.ObjectId
+  author        User        @relation(fields: [authorId], references: [id])
+  authorId      String      @db.ObjectId
+  votes         Vote[]
+  upVotes    Int         @default(0)
+  downVotes    Int         @default(0)
+  totalVotes    Int         @default(0)
+  totalAnswers  Int         @default(0) 
+  updatedAt     DateTime    @updatedAt
+  parentId      String?     @db.ObjectId
+  responses     Answer[]    @relation("AnswerToAnswer")
+  parent        Answer?     @relation("AnswerToAnswer", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  @@index([questionId])
+  @@index([authorId])
+  @@index([parentId])
+}
+
+model Vote {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  value         Int         // -1 for downvote, 1 for upvote
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String      @db.ObjectId
+  question      Question?   @relation(fields: [questionId], references: [id])
+  questionId    String?     @db.ObjectId
+  answer        Answer?     @relation(fields: [answerId], references: [id])
+  answerId      String?     @db.ObjectId
+  updatedAt     DateTime    @updatedAt
+  @@index([userId])
+  @@index([questionId])
+  @@index([answerId])
+}
+
+model LiveChatSession {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  date          DateTime
+  isActive      Boolean     @default(true)
+  messages      Message[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  participants SessionParticipant[]
+  @@index([date])
+  @@index([isActive])
+}
+
+model Message {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  content       String
+  author        User        @relation(fields: [authorId], references: [id])
+  authorId      String      @db.ObjectId
+  liveChatSession   LiveChatSession @relation(fields: [sessionId], references: [id])
+  sessionId     String      @db.ObjectId
+  upVotes    Int         @default(0)
+  downVotes    Int         @default(0)
+  totalVotes    Int         @default(0)
+  votes         MessageVote[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  @@index([authorId])
+  @@index([sessionId])
+  @@index([sessionId, createdAt])
+}
+
+model MessageVote {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  value         Int         // -1 for downvote, 1 for upvote
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String      @db.ObjectId
+  message       Message     @relation(fields: [messageId], references: [id])
+  messageId     String      @db.ObjectId
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  @@index([userId])
+  @@index([messageId])
+  @@index([messageId, value])
+}
+
+model SessionParticipant {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String      @db.ObjectId
+  sessionId   String      @db.ObjectId
+  user        User        @relation(fields: [userId], references: [id])
+  liveSession LiveChatSession @relation(fields: [sessionId], references: [id])
+  joinedAt    DateTime    @default(now())
+
+  @@unique([userId, sessionId])
+  @@index([userId])
+  @@index([sessionId])
+}
