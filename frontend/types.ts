@@ -1,3 +1,7 @@
+export const PRIORITY_ZER0 = 10
+export const PRIORITY_HIGH = 20;
+
+
 export enum TabType {
   md = 'Most downvotes',
   mu = 'Most upvotes',

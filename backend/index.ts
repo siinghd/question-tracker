@@ -98,7 +98,7 @@ Message.watch().on('change', async (change) => {
     if (!message) {
       return;
     }
-
+    message.id = message._id;
     message.author = message.authorId;
 
     switch (change.operationType) {
@@ -118,7 +118,7 @@ Message.watch().on('change', async (change) => {
           io.to(message.sessionId.toString()).emit(
             SocketEvent.MessageVoteUpdate,
             {
-              messageId: message._id,
+              id: message._id,
               upVotes: message.upVotes,
               downVotes: message.downVotes,
             }
@@ -128,7 +128,7 @@ Message.watch().on('change', async (change) => {
 
       case ChangeType.Delete:
         const messageId = change.documentKey._id.toHexString();
-        io.emit(SocketEvent.MessageDeleted, { messageId });
+        io.emit(SocketEvent.MessageDeleted, { id: messageId });
         break;
 
       case ChangeType.Replace:

@@ -29,7 +29,7 @@ export const fetchMessagesFromDatabase = async (
       sessionId: sessionId,
     },
     orderBy: {
-      createdAt: 'asc',
+      createdAt: 'desc',
     },
     skip: page * pageSize,
     take: pageSize + 1, // one extra record to check if there are more records

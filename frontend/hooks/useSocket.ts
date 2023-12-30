@@ -14,10 +14,6 @@ export function useSocket(
   liveSession: LiveChatSession
 ): Socket | null {
   const socketRef = useRef<Socket | null>(null);
-  const retryCountRef = useRef(0);
-  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const maxRetries = 3;
-  const retryDelay = 5000;
   const { execute } = useAction(addSessionParticipant);
 
   useEffect(() => {
@@ -47,24 +43,12 @@ export function useSocket(
           sessionId: liveSession.id,
           userId: userSession.user.id!,
         });
-        retryCountRef.current = 0;
       }
     });
 
     const handleReconnect = (reason: any) => {
-      if (retryCountRef.current < maxRetries) {
-        if (retryTimeoutRef.current) {
-          clearTimeout(retryTimeoutRef.current);
-        }
-        retryTimeoutRef.current = setTimeout(() => {
-          retryCountRef.current += 1;
-          if (socketRef.current?.disconnected) {
-            socketRef.current.connect();
-          }
-        }, retryDelay);
-      } else {
-        toast.info('Max reconnection attempts reached');
-      }
+      console.log(reason);
+      toast.error(reason || reason.message);
     };
     socketRef.current.on('disconnect', handleReconnect);
     socketRef.current.on('connect_error', handleReconnect);
@@ -74,12 +58,8 @@ export function useSocket(
     });
 
     return () => {
-      console.log('Closing socket connection');
       if (socketRef.current?.connected) {
         socketRef.current.close();
-      }
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current);
       }
     };
   }, [

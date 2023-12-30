@@ -16,7 +16,11 @@ export function useInfiniteMessages(sessionId: string): UseInfiniteQueryResult<
   return useInfiniteQuery({
     queryKey: ['messages', sessionId],
     queryFn: async ({ pageParam = 0 }) => {
-      const response = await fetchMessagesFromDatabase(sessionId, pageParam, 2);
+      const response = await fetchMessagesFromDatabase(
+        sessionId,
+        pageParam,
+        20
+      );
       return response;
     },
     getNextPageParam: lastPage => {
