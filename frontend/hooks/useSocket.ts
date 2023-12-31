@@ -17,6 +17,7 @@ export function useSocket(
   const { execute } = useAction(addSessionParticipant);
 
   useEffect(() => {
+    // Only try to connect if we have the necessary tokens and the session is active
     if (
       !userSession.user.externalToken ||
       !liveSession.isActive ||
@@ -24,6 +25,11 @@ export function useSocket(
     ) {
       return;
     }
+
+    // Define the reconnection attempts and delay
+    const maxReconnectAttempts = 3;
+    let reconnectAttempts = 0;
+    const reconnectDelay = 3000; // reconnect after 3 seconds
 
     socketRef.current = io(
       process.env.NEXT_PUBLIC_SOCKET_IO_SERVER_URL as string,
@@ -33,12 +39,15 @@ export function useSocket(
           token: userSession.user.externalToken,
         },
         transports: ['websocket'],
+        reconnectionAttempts: maxReconnectAttempts, // use this for automatic reconnection attempts
+        reconnectionDelay: reconnectDelay,
       }
     );
 
     socketRef.current.on('connect', () => {
-      if (socketRef?.current) {
-        socketRef?.current.emit(SocketEvent.JoinSession, liveSession.id);
+      reconnectAttempts = 0; // reset reconnect attempts on successful connect
+      if (socketRef.current) {
+        socketRef.current.emit(SocketEvent.JoinSession, liveSession.id);
         execute({
           sessionId: liveSession.id,
           userId: userSession.user.id!,
@@ -46,19 +55,36 @@ export function useSocket(
       }
     });
 
-    const handleReconnect = (reason: any) => {
-      console.log(reason);
-      toast.error(reason || reason.message);
+    const handleReconnectAttempt = () => {
+      reconnectAttempts++;
+      if (reconnectAttempts > maxReconnectAttempts) {
+        toast.error(
+          'Failed to reconnect to the session after several attempts.'
+        );
+        socketRef.current?.close();
+      } else {
+        toast.info(`Attempt ${reconnectAttempts} to reconnect...`);
+      }
     };
-    socketRef.current.on('disconnect', handleReconnect);
-    socketRef.current.on('connect_error', handleReconnect);
-    socketRef.current.on('error', (errorMessage: string) => {
-      toast.error(errorMessage);
+
+    // Register the event for reconnection attempts
+    socketRef.current.on('reconnect_attempt', handleReconnectAttempt);
+
+    // Error handling
+    const handleError = (error: any) => {
+      toast.error(
+        error.message || 'An error occurred with the socket connection.'
+      );
       socketRef.current?.close();
-    });
+    };
+
+    socketRef.current.on('disconnect', handleError);
+    socketRef.current.on('connect_error', handleError);
+    socketRef.current.on('error', handleError);
 
     return () => {
       if (socketRef.current?.connected) {
+        toast.info('Disconnecting from session');
         socketRef.current.close();
       }
     };

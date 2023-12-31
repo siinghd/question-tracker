@@ -5,7 +5,7 @@ import { NewLiveChatSession } from '@/components/new-chat-session';
 import Pagination from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 import { paginationData } from '@/lib/functions';
-import { QueryParams } from '@/types';
+import { QueryParams, Roles } from '@/types';
 import React from 'react';
 async function getLiveChatSessions(searchParams: QueryParams) {
   const paginationQ = paginationData(searchParams); // pageNumber: number;  pageSize: number;   skip: number;
@@ -41,7 +41,7 @@ const LiveChat = async ({
         <div className="text-3xl dark:text-white  text-black transition-colors duration-500">
           <h1 className="text-black  dark:text-white">Sessions</h1>
         </div>
-        <NewLiveChatSession />
+        {session?.user.role === Roles.admin && <NewLiveChatSession />}
       </div>
       <main className=" p-4 md:p-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">

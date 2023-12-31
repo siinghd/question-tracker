@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/auth';
+import { auth, signOut } from '@/auth';
 import {
   InputTypeCreate,
   InputTypeDelete,
@@ -24,13 +24,20 @@ const createLiveSessionHandler = async (
 ): Promise<ReturnTypeCreate> => {
   const session = await auth();
 
-  if (!session || (!session.user.id && session.user.role !== Roles.admin)) {
+  if (!session || !session.user.id || session.user.role !== Roles.admin) {
     return { error: 'Unauthorized or insufficient permissions' };
   }
 
   const { title } = data;
 
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      await signOut();
+    }
     const liveSessionData = {
       title,
       date: new Date(),
@@ -61,6 +68,13 @@ const updateLiveSessionHandler = async (
   const { sessionId, title, isActive } = data;
 
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      await signOut();
+    }
     const updatedLiveSession = await prisma.liveChatSession.update({
       where: { id: sessionId },
       data: { title, isActive },
@@ -86,6 +100,13 @@ const deleteLiveSessionHandler = async (
   const { sessionId } = data;
 
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      await signOut();
+    }
     await prisma.liveChatSession.delete({
       where: { id: sessionId },
     });

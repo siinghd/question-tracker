@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/auth';
+import { auth, signOut } from '@/auth';
 import {
   DeleteTypeQuestion,
   InputTypeCreate,
@@ -37,6 +37,13 @@ const createQuestionHandler = async (
   let slug = generateHandle(title);
 
   try {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      await signOut();
+    }
     // Check if slug already exists
     const existingQuestion = await prisma.question.findFirst({
       where: { slug },
@@ -80,7 +87,13 @@ const updateQuestionHandler = async (
   }
 
   const { title, content, tags, questionId } = data;
+  const userExists = await prisma.user.findUnique({
+    where: { id: session.user.id },
+  });
 
+  if (!userExists) {
+    await signOut();
+  }
   // Check if the user is the author of the question
   const existingQuestion = await prisma.question.findUnique({
     where: { id: questionId },
@@ -142,7 +155,13 @@ const deleteQuestionHandler = async (
   if (!session || !session.user.id) {
     return { error: 'Unauthorized' };
   }
+  const userExists = await prisma.user.findUnique({
+    where: { id: session.user.id },
+  });
 
+  if (!userExists) {
+    await signOut();
+  }
   const { questionId } = data;
 
   const question = await prisma.question.findUnique({

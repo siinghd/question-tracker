@@ -2,6 +2,10 @@
   "name": "qat-backend",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "start-pm2-dev": "pm2 restart pm2.dev.config.cjs --update-env",
+    "start-pm2-prod": "pm2 restart pm2.prod.config.cjs --update-env"
+  },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.5",
     "@types/socket.io": "^3.0.2",

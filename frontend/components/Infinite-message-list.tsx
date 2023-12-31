@@ -46,13 +46,21 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
   const { data, fetchNextPage, hasNextPage } = useInfiniteMessages(
     liveSession.id,
   );
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   const endRef = useRef<HTMLDivElement>(null);
+  const formRefSend = useRef<HTMLFormElement>(null);
   const { ref: topMessageRef, inView } = useInView({ threshold: 0.5 });
   const { ref: bottomMessageRef, inView: isBottomInView } = useInView({
     threshold: 1,
   });
-  const { execute } = useAction(createMessage);
+  const { execute } = useAction(createMessage, {
+    onSuccess: (data) => {
+      formRefSend.current?.reset();
+    },
+    onError: (error) => {
+      toast.error(error);
+    },
+  });
 
   const mergeMessages = useCallback(
     (incomingMessages: ExtentedMessage[]) => {
@@ -96,20 +104,31 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
   );
 
   const handleNewMessage = useCallback(
-    (newMessage: ExtentedMessage) => mergeMessages([newMessage]),
+    (newMessage: ExtentedMessage) => {
+      mergeMessages([newMessage]);
+    },
     [mergeMessages],
   );
 
   useEffect(() => {
+    // Establish socket connection and setup event listeners
     if (socket && socket.connected) {
+      toast.info('Socket is connected, setting up listeners');
       socket.on(SocketEvent.NewMessage, handleNewMessage);
       socket.on(SocketEvent.MessageVoteUpdate, handleNewMessage);
-      return () => {
+    } else {
+      console.log('Socket is not connected yet');
+    }
+
+    // Cleanup event listeners on component unmount or before re-establishing new ones
+    return () => {
+      if (socket) {
+        console.log('Cleaning up listeners');
         socket.off(SocketEvent.NewMessage, handleNewMessage);
         socket.off(SocketEvent.MessageVoteUpdate, handleNewMessage);
-      };
-    }
-  }, [socket, handleNewMessage]);
+      }
+    };
+  }, [socket, handleNewMessage, socket?.connected]);
   useEffect(() => {
     if (isBottomInView && endRef.current && messagesLoaded) {
       endRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -120,14 +139,6 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
     if (data?.pages) mergeMessages(data.pages.flatMap((page) => page.result));
   }, [inView, hasNextPage, fetchNextPage, data, mergeMessages]);
 
-  const handleMessageSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const message = new FormData(e.currentTarget).get('message') as string;
-      execute({ content: message, sessionId: liveSession.id });
-    },
-    [execute, liveSession.id],
-  );
   const handleRemoveItem = useCallback(
     (id: string) => {
       setLiveMessages((prevMessages) =>
@@ -153,13 +164,30 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
     () => liveMessages.filter((msg) => msg.upVotes > PRIORITY_HIGH),
     [liveMessages],
   );
+  const handleMessageSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const message = new FormData(e.currentTarget).get('message') as string;
 
-  const renderMessages = (
-    filterFn: any,
-    messages: ExtentedMessage[],
-    dismissBtn = false,
-  ) =>
-    messages.filter(filterFn).map((message) => (
+      execute({ content: message, sessionId: liveSession.id });
+    },
+    [execute, liveSession.id],
+  );
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+
+      const fakeEvent = {
+        preventDefault: () => {},
+        currentTarget: formRefSend.current,
+      };
+      handleMessageSubmit(
+        fakeEvent as unknown as React.FormEvent<HTMLFormElement>,
+      );
+    }
+  };
+  const renderMessages = (messages: ExtentedMessage[], dismissBtn = false) =>
+    messages.map((message) => (
       <div className="flex flex-col space-y-2 " key={message.id}>
         <div className="flex items-center gap-2">
           <Avatar className="cursor-pointer">
@@ -221,16 +249,14 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
           <ScrollArea className="flex-grow overflow-y-auto mb-4 ">
             <div ref={topMessageRef}>Loading more messages...</div>
             <div className="space-y-4">
-              {renderMessages(
-                (msg: ExtentedMessage) => msg.upVotes < 1,
-                filteredLowPriorityMessages,
-              )}
+              {renderMessages(filteredLowPriorityMessages)}
             </div>
-            <div ref={endRef} className="scroll-mb-0" />
-            <div ref={bottomMessageRef} className="scroll-mb-0 mb-4" />
+            <div ref={endRef} />
+            <div ref={bottomMessageRef} className="mb-6" />
           </ScrollArea>
           {liveSession.isActive && (
             <form
+              ref={formRefSend}
               onSubmit={handleMessageSubmit}
               className="border-t pt-4 flex items-end"
             >
@@ -240,6 +266,7 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
                 rows={2}
                 name="message"
                 placeholder="Type your message..."
+                onKeyDown={handleKeyDown}
               />
 
               <Button type="submit">Send</Button>
@@ -253,11 +280,7 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
           </header>
           <ScrollArea className="flex-grow overflow-y-auto mb-4 ">
             <div className="space-y-4">
-              {renderMessages(
-                (msg: ExtentedMessage) => msg.upVotes > 0,
-                filteredMediumPriorityMessages,
-                true,
-              )}
+              {renderMessages(filteredMediumPriorityMessages, true)}
             </div>
           </ScrollArea>
         </main>
@@ -267,11 +290,7 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
           </header>
           <ScrollArea className="flex-grow overflow-y-auto mb-4 ">
             <div className="space-y-4">
-              {renderMessages(
-                (msg: ExtentedMessage) => msg.upVotes > 20,
-                filteredHighPriorityMessages,
-                true,
-              )}
+              {renderMessages(filteredHighPriorityMessages, true)}
             </div>
           </ScrollArea>
         </main>
