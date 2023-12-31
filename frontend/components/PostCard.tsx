@@ -234,7 +234,7 @@ const PostCard: React.FC<IProps> = ({
           post.responses &&
           post?.responses.length > 0 &&
           post?.responses.map((post: Answer) => (
-            <div key={post.id} className='w-full'>
+            <div key={post.id} className="w-full">
               <hr className="mt-1 mb-1 w-3 m-auto" />
               <PostCard
                 questionId={post.questionId}

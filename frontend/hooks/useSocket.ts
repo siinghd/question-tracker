@@ -38,6 +38,8 @@ export function useSocket(
 
     socketRef.current.on('connect', () => {
       if (socketRef?.current) {
+        toast.info('Connected to the session');
+
         socketRef?.current.emit(SocketEvent.JoinSession, liveSession.id);
         execute({
           sessionId: liveSession.id,
@@ -47,7 +49,6 @@ export function useSocket(
     });
 
     const handleReconnect = (reason: any) => {
-      console.log(reason);
       toast.error(reason || reason.message);
     };
     socketRef.current.on('disconnect', handleReconnect);
@@ -59,6 +60,7 @@ export function useSocket(
 
     return () => {
       if (socketRef.current?.connected) {
+        toast.error('Disconnecting from session');
         socketRef.current.close();
       }
     };

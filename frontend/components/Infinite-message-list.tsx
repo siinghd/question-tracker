@@ -219,8 +219,8 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
             <div className="space-y-4">
               {renderMessages(filteredLowPriorityMessages)}
             </div>
-            <div ref={endRef} className="scroll-mb-0" />
-            <div ref={bottomMessageRef} className="scroll-mb-0 mb-4" />
+            <div ref={endRef} />
+            <div ref={bottomMessageRef} className="mb-6" />
           </ScrollArea>
           {liveSession.isActive && (
             <form
