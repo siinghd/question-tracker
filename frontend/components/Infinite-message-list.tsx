@@ -56,7 +56,6 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
 
   const mergeMessages = useCallback(
     (incomingMessages: ExtentedMessage[]) => {
-      console.log('incomingMessages', incomingMessages)
       setLiveMessages((prevMessages) => {
         // Create a map from existing messages for easy lookup
         const messagesById = new Map(prevMessages.map((msg) => [msg.id, msg]));
@@ -97,7 +96,10 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
   );
 
   const handleNewMessage = useCallback(
-    (newMessage: ExtentedMessage) => mergeMessages([newMessage]),
+    (newMessage: ExtentedMessage) => {
+      console.log('incomingMessages', newMessage);
+      mergeMessages([newMessage]);
+    },
     [mergeMessages],
   );
 
