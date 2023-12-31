@@ -128,7 +128,7 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
         socket.off(SocketEvent.MessageVoteUpdate, handleNewMessage);
       }
     };
-  }, [socket, handleNewMessage]);
+  }, [socket, handleNewMessage, socket?.connected]);
   useEffect(() => {
     if (isBottomInView && endRef.current && messagesLoaded) {
       endRef.current.scrollIntoView({ behavior: 'smooth' });
