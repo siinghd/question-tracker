@@ -139,14 +139,6 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
     if (data?.pages) mergeMessages(data.pages.flatMap((page) => page.result));
   }, [inView, hasNextPage, fetchNextPage, data, mergeMessages]);
 
-  const handleMessageSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const message = new FormData(e.currentTarget).get('message') as string;
-      execute({ content: message, sessionId: liveSession.id });
-    },
-    [execute, liveSession.id],
-  );
   const handleRemoveItem = useCallback(
     (id: string) => {
       setLiveMessages((prevMessages) =>
@@ -172,7 +164,28 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
     () => liveMessages.filter((msg) => msg.upVotes > PRIORITY_HIGH),
     [liveMessages],
   );
+  const handleMessageSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const message = new FormData(e.currentTarget).get('message') as string;
 
+      execute({ content: message, sessionId: liveSession.id });
+    },
+    [execute, liveSession.id],
+  );
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+
+      const fakeEvent = {
+        preventDefault: () => {},
+        currentTarget: formRefSend.current,
+      };
+      handleMessageSubmit(
+        fakeEvent as unknown as React.FormEvent<HTMLFormElement>,
+      );
+    }
+  };
   const renderMessages = (messages: ExtentedMessage[], dismissBtn = false) =>
     messages.map((message) => (
       <div className="flex flex-col space-y-2 " key={message.id}>
@@ -253,6 +266,7 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
                 rows={2}
                 name="message"
                 placeholder="Type your message..."
+                onKeyDown={handleKeyDown}
               />
 
               <Button type="submit">Send</Button>
