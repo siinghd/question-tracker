@@ -46,7 +46,7 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
   const { data, fetchNextPage, hasNextPage } = useInfiniteMessages(
     liveSession.id,
   );
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   const endRef = useRef<HTMLDivElement>(null);
   const { ref: topMessageRef, inView } = useInView({ threshold: 0.5 });
   const { ref: bottomMessageRef, inView: isBottomInView } = useInView({
@@ -56,6 +56,7 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
 
   const mergeMessages = useCallback(
     (incomingMessages: ExtentedMessage[]) => {
+      console.log('incomingMessages', incomingMessages)
       setLiveMessages((prevMessages) => {
         // Create a map from existing messages for easy lookup
         const messagesById = new Map(prevMessages.map((msg) => [msg.id, msg]));
