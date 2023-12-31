@@ -48,11 +48,19 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
   );
 
   const endRef = useRef<HTMLDivElement>(null);
+  const formRefSend = useRef<HTMLFormElement>(null);
   const { ref: topMessageRef, inView } = useInView({ threshold: 0.5 });
   const { ref: bottomMessageRef, inView: isBottomInView } = useInView({
     threshold: 1,
   });
-  const { execute } = useAction(createMessage);
+  const { execute } = useAction(createMessage, {
+    onSuccess: (data) => {
+      formRefSend.current?.reset();
+    },
+    onError: (error) => {
+      toast.error(error);
+    },
+  });
 
   const mergeMessages = useCallback(
     (incomingMessages: ExtentedMessage[]) => {
@@ -104,14 +112,23 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
   );
 
   useEffect(() => {
+    // Establish socket connection and setup event listeners
     if (socket && socket.connected) {
+      toast.info('Socket is connected, setting up listeners');
       socket.on(SocketEvent.NewMessage, handleNewMessage);
       socket.on(SocketEvent.MessageVoteUpdate, handleNewMessage);
-      return () => {
+    } else {
+      console.log('Socket is not connected yet');
+    }
+
+    // Cleanup event listeners on component unmount or before re-establishing new ones
+    return () => {
+      if (socket) {
+        console.log('Cleaning up listeners');
         socket.off(SocketEvent.NewMessage, handleNewMessage);
         socket.off(SocketEvent.MessageVoteUpdate, handleNewMessage);
-      };
-    }
+      }
+    };
   }, [socket, handleNewMessage]);
   useEffect(() => {
     if (isBottomInView && endRef.current && messagesLoaded) {
@@ -227,6 +244,7 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
           </ScrollArea>
           {liveSession.isActive && (
             <form
+              ref={formRefSend}
               onSubmit={handleMessageSubmit}
               className="border-t pt-4 flex items-end"
             >
