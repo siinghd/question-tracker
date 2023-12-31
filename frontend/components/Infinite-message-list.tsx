@@ -105,7 +105,6 @@ const InfiniteMessageList: React.FC<InfiniteMessageListProps> = ({
 
   const handleNewMessage = useCallback(
     (newMessage: ExtentedMessage) => {
-      console.log('incomingMessages', newMessage);
       mergeMessages([newMessage]);
     },
     [mergeMessages],
