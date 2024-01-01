@@ -18,6 +18,33 @@ import { createSafeAction } from '@/lib/create-safe-action';
 import { Session } from 'next-auth/types';
 import { auth, signOut } from '@/auth';
 import { Roles } from '@/types';
+interface RateLimiter {
+  timestamps: Date[];
+}
+
+const userRateLimits = new Map<string, RateLimiter>();
+
+const rateLimit = (userId: string): boolean => {
+  const now = new Date();
+  const limit = 30; // limit to 5 messages per minute
+  const interval = 60000; // 1 minute
+
+  const userLimiter = userRateLimits.get(userId) ?? { timestamps: [] };
+
+
+  userLimiter.timestamps = userLimiter.timestamps.filter(
+    timestamp => now.getTime() - timestamp.getTime() < interval
+  );
+
+  if (userLimiter.timestamps.length >= limit) {
+
+    return false;
+  }
+
+  userLimiter.timestamps.push(now);
+  userRateLimits.set(userId, userLimiter);
+  return true;
+};
 
 export const fetchMessagesFromDatabase = async (
   sessionId: string,
@@ -52,7 +79,10 @@ const createMessageHandler = async (
   if (!session || !session?.user) {
     return { error: 'Unauthorized or insufficient permissions' };
   }
-
+  const canCreateMessage = rateLimit(session.user.id!);
+  if (!canCreateMessage) {
+    return { error: 'Rate limit exceeded. Please try again later.' };
+  }
   const { content, sessionId } = data;
 
   try {
