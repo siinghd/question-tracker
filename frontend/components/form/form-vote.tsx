@@ -31,19 +31,25 @@ const VoteForm: React.FC<IVoteFormProps> = ({
 }) => {
   const { execute, fieldErrors, setFieldErrors } = useAction(updateVote, {
     onSuccess: (data) => {
-      toast.success(
-        `Question has "${data?.upVotes}" up votes and "${data?.downVotes}" down votes Now`,
-      );
+      // toast(JSON.stringify(data));
     },
     onError: (error) => {
       toast.error(error);
     },
   });
   const handleDownVote = () => {
-    execute({ value: -1, questionId, answerId });
+    toast.promise(execute({ value: -1, questionId, answerId }), {
+      loading: 'Downvoting...',
+      success: 'Question has been downvoted.',
+      error: 'Error',
+    });
   };
   const handleUpVote = () => {
-    execute({ value: 1, questionId, answerId });
+    toast.promise(execute({ value: 1, questionId, answerId }), {
+      loading: 'Upvoting...',
+      success: 'Question has been upvoted.',
+      error: 'Error',
+    });
   };
 
   const userVoted = Boolean(votesArr.length);
