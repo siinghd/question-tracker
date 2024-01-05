@@ -31,13 +31,11 @@ const rateLimit = (userId: string): boolean => {
 
   const userLimiter = userRateLimits.get(userId) ?? { timestamps: [] };
 
-
   userLimiter.timestamps = userLimiter.timestamps.filter(
     timestamp => now.getTime() - timestamp.getTime() < interval
   );
 
   if (userLimiter.timestamps.length >= limit) {
-
     return false;
   }
 
