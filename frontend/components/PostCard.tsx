@@ -99,19 +99,21 @@ const PostCard: React.FC<IProps> = ({
                 className="h-10 w-10 rounded-full"
                 src={post?.author?.image || ''}
               />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarFallback>DP</AvatarFallback>
             </Avatar>
-            <TextSnippet className="font-medium">
-              {post?.author?.name}
-            </TextSnippet>
-            <TextSnippet className="text-sm text-gray-500">
-              {dayjs(post.createdAt).fromNow()}
-            </TextSnippet>
-            <TextSnippet className="w-[10px] h-[10px] bg-blue-500 rounded-full"></TextSnippet>
-            <TextSnippet className="text-sm text-gray-500 -ml-2">
-              Edited on&nbsp;
-              {dayjs(post.updatedAt).fromNow()}
-            </TextSnippet>
+            <div className="flex flex-col">
+              <TextSnippet className="font-medium mb-1">
+                {post?.author?.name}
+              </TextSnippet>
+              <div className="flex items-center">
+                <TextSnippet className="text-xs text-gray-500">
+                  {dayjs(post.createdAt).fromNow()}
+                </TextSnippet>
+                <TextSnippet className="text-xs text-gray-500 ml-1">
+                  • Updated {dayjs(post.updatedAt).fromNow()}
+                </TextSnippet>
+              </div>
+            </div>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger>
