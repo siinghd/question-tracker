@@ -21,7 +21,8 @@ import { Roles } from '@/types';
 interface RateLimiter {
   timestamps: Date[];
 }
-
+const RECENT_MESSAGE_LIMIT = 10;
+const SIMILARITY_THRESHOLD = 0.8;
 const userRateLimits = new Map<string, RateLimiter>();
 
 const rateLimit = (userId: string): boolean => {
@@ -31,13 +32,11 @@ const rateLimit = (userId: string): boolean => {
 
   const userLimiter = userRateLimits.get(userId) ?? { timestamps: [] };
 
-
   userLimiter.timestamps = userLimiter.timestamps.filter(
     timestamp => now.getTime() - timestamp.getTime() < interval
   );
 
   if (userLimiter.timestamps.length >= limit) {
-
     return false;
   }
 
@@ -94,6 +93,11 @@ const createMessageHandler = async (
       await signOut();
       return { error: 'User not found.' };
     }
+    const recentMessages = await prisma.message.findMany({
+      where: { authorId: session.user.id },
+      orderBy: { createdAt: 'desc' },
+      take: RECENT_MESSAGE_LIMIT,
+    });
     const message = await prisma.message.create({
       data: { content, authorId: session.user.id!, sessionId },
     });
